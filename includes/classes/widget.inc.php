@@ -24,7 +24,7 @@ class widget
         global $settings;
         global $mysql;
         // Draws the widget
-        $html .= '
+        $html = '
 <div class="widget">';
         $html .= '
 <h1>'.$settings->get_value(kSettingLeagueName).' Draft Status ('.date("l, F d, Y, g:i a T").')</h1>';
