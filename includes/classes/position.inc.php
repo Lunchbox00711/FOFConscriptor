@@ -24,10 +24,11 @@ class position
 {
     public function option_list($staff = false)
     {
+        global $mysql;
         if (!$staff) {
             $statement = "select * from position order by position_id";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
                 if ($row['position_id'] == $_GET['position_id']) {
                     $selected = " selected";
                 } else {
@@ -38,8 +39,8 @@ class position
             }
         } else {
             $statement = "select * from staff_roles order by staff_role_id";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
                 if ($row['staff_role_id'] == $_GET['position_id']) {
                     $selected = " selected";
                 } else {

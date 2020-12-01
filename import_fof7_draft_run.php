@@ -49,33 +49,33 @@ if ($admin) {
 if ($admin) {
     $settings->set_value(kSettingStaffDraftOn, 0);
     $statement = "truncate table pick";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player_temp";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_to_column";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table staff";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table staff_selection";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player_comments";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_player";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player_to_attribute";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_player_to_attribute";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table selection";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table bpa";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_need";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table mock_draft";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $col[] = "team_clock_adj = '1'";
     $col[] = "team_autopick = '0'";
     $col[] = "pick_method_id = '1'";
@@ -83,12 +83,12 @@ if ($admin) {
     $col[] = "team_email_prefs = '0'";
     $col[] = "team_sms_setting = '0'";
     $statement = "update team set ".implode(",", $col)." where team_id != '1'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 } else {
     $statement = "delete from team_player where team_id = '".$login->team_id()."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "delete from team_player_to_attribute where team_id = '".$login->team_id()."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 }
 
 // Now for the import
@@ -165,10 +165,10 @@ Please upload that file as well.";
         $col["staff_name"] = addslashes(trim($columns[kstaff_first_name])).' '.addslashes(trim($columns[kstaff_last_name]));
         $col["staff_curr_team_id"] = $columns[kstaff_curr_team_id];
         $rolestatement = "select staff_role_id from staff_roles where staff_role_name='".trim($columns[kstaff_role])."'";
-        $roleid = mysql_fetch_array(mysql_query($rolestatement));
+        $roleid = mysqli_fetch_array(mysqli_query($mysql, $rolestatement));
         $col["staff_role_id"] = $roleid["staff_role_id"];
         $pristatement = "select staff_pri_group_id from staff_pri_group where staff_pri_group_name='".trim($columns[kstaff_pri_group])."'";
-        $priid = mysql_fetch_array(mysql_query($pristatement));
+        $priid = mysqli_fetch_array(mysqli_query($mysql, $pristatement));
         $col["staff_pri_group_id"] = $priid["staff_pri_group_id"];
         $col["staff_salary"] = $columns[kstaff_salary];
         $col["staff_player_dev"] = $columns[kstaff_player_dev];
@@ -203,8 +203,8 @@ Please upload that file as well.";
         //as long as they are not retired add them to the database.
         if (strcmp(trim($col["staff_retired"]), "1") != 0) {
             $statement = "insert into staff (".implode(",", $tables).") values (".implode(",", $values).")";
-            mysql_query($statement);
-            $staff_id = mysql_insert_id();
+            mysqli_query($mysql, $statement);
+            $staff_id = mysqli_insert_id($mysql);
         }
     }
   
@@ -261,7 +261,7 @@ Please upload that file as well.";
             $col["player_in_game_id"] = $columns[kInGameID];
             $col["player_name"] = addslashes(trim($columns[kFirstName])).' '.addslashes(trim($columns[kLastName]));
             $posstatement = "select position_id from position where position_name='".trim($columns[kPosGrp])."'";
-            $posid = mysql_fetch_array(mysql_query($posstatement));
+            $posid = mysqli_fetch_array(mysqli_query($mysql, $posstatement));
             $col["position_id"] = $posid["position_id"];
             $col["player_school"] = addslashes($columns[kSchool]);
             $col["player_dob"] = $player_dob[$columns[kInGameID]];
@@ -286,7 +286,7 @@ Please upload that file as well.";
             $statement = "select * from player where player_name = '".addslashes($columns[kName])."' and
 position_id = '".$positions[$columns[kPosition]]."' and
 player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))."'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $col["player_id"] = $row['player_id'];
             $player_id = $row['player_id'];
             if ($row['player_id']) {
@@ -322,11 +322,11 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
     
         if ($login->is_admin()) {
             $statement = "insert into player_temp (".implode(",", $tables).") values (".implode(",", $values).")";
-            mysql_query($statement);
-            $player_id = mysql_insert_id();
+            mysqli_query($mysql, $statement);
+            $player_id = mysqli_insert_id($mysql);
         } else {
             $statement = "insert into team_player(".implode(",", $tables).") values (".implode(",", $values).")";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         /*
             // Attributes
@@ -339,8 +339,8 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
             $cur_col = 35;
             $statement = "select * from position_to_attribute where position_id = '".$positions[$columns[kPosition]]."'
         order by position_to_attribute_order";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
               if ($qb && $row['attribute_id'] == 1) {
             // This is the odd attribute, formations, with only one value
             if ($admin) {
@@ -372,7 +372,7 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
         ('".$login->team_id()."','$player_id', '".$row['attribute_id']."', '$low', '$high')";
             }
               }
-              mysql_query($statement);
+              mysqli_query($mysql, $statement);
             }
         */
     } else {
@@ -383,7 +383,7 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
 //now reorder based on grade
 if ($admin) {
     $statement = "insert into player select * from player_temp order by player_score desc";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 }
 
 // Now for the draft order and preview file
@@ -393,9 +393,9 @@ if ($admin) {
     $pick_order = ['xxx']; // Initialize to the "no pick" value
     // Add the "no pick" value to the database
     $statement = "select * from team where team_name = 'xxx'";
-    if (!mysql_num_rows(mysql_query($statement))) {
+    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
         $statement = "insert into team (team_name, team_password, in_game_id) values ('xxx', '".md5(uniqid(rand()))."', '99')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
     //now build the team table from the team info csv
     unset($teamfile);
@@ -419,53 +419,53 @@ if ($admin) {
         //put in -100 for decline pick where this team currently has staff hired as 1st priority, and
         //if they don't have someone hired insert -200 for scout selection.
         $statement = "select * from staff where staff_curr_team_id = ".$id." and staff_role_id = 1";
-        if (mysql_fetch_array(mysql_query($statement))) {
+        if (mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-100,1,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         } else {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-200,1,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         $statement = "select * from staff where staff_curr_team_id = ".$id." and staff_role_id = 2";
-        if (mysql_fetch_array(mysql_query($statement))) {
+        if (mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-100,2,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         } else {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-200,2,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         $statement = "select * from staff where staff_curr_team_id = ".$id." and staff_role_id = 3";
-        if (mysql_fetch_array(mysql_query($statement))) {
+        if (mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-100,3,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         } else {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-200,3,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         $statement = "select * from staff where staff_curr_team_id = ".$id." and staff_role_id = 4";
-        if (mysql_fetch_array(mysql_query($statement))) {
+        if (mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-100,4,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         } else {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-200,4,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         $statement = "select * from staff where staff_curr_team_id = ".$id." and staff_role_id = 5";
-        if (mysql_fetch_array(mysql_query($statement))) {
+        if (mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-100,5,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         } else {
             $statement = "insert into staff_selection (team_id,staff_id,staff_role,selection_priority) VALUES (".$id.",-200,5,1)";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         //$city=trim($matches[2][0]);
         if (!array_key_exists($city, $teams)) {
             $statement = "select * from team where team_name = '$city'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if (!$row['team_id']) {
                 $statement = "insert into team (team_name, in_game_id) values ('$city','$id')";
-                mysql_query($statement);
-                $teams[$city] = mysql_insert_id();
+                mysqli_query($mysql, $statement);
+                $teams[$city] = mysqli_insert_id($mysql);
                 $tids[$id] = $city;
             } else {
                 $teams[$city] = $row['team_id'];
@@ -482,7 +482,7 @@ if ($admin) {
                     } else {
                         $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', '$i', '$i')";
                     }
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
                     $i++;
                 }
                 // Populate the default colmuns, 1-12
@@ -495,59 +495,59 @@ if ($admin) {
                     } else {
                         $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, '$i', '$i')";
                     }
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
                     $i++;
                 }
             } else {
                 // Populate the default STAFF colmuns, 1-12
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 31, 1)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 32, 2)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 47, 3)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 33, 4)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 36, 5)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 43, 6)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 48, 7)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 49, 8)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 50, 9)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 51, 10)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 52, 11)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values ('$teams[$city]', 53, 12)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 31, 1)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 32, 2)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 47, 3)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 33, 4)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 36, 5)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 43, 6)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 48, 7)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 49, 8)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 50, 9)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 51, 10)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 52, 11)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order) values (1, 53, 12)";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }//end new team name handle
     }//end team row
@@ -610,11 +610,11 @@ if ($admin) {
                 $pick_order[$i] = $tids[$fields[3]];
                 //update the staff table with the draft order for this team for applicable staff
                 $statement = "UPDATE staff set staff.staff_team_draft_order='$pick' where staff.staff_curr_team_id='$fields[3]'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             } else {
                 //update the staff table with the draft order for this team for applicable staff
                 $statement = "UPDATE staff set staff.staff_team_draft_order='$pick' where staff.staff_curr_team_id='$team_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }
     }
@@ -633,7 +633,7 @@ if ($admin) {
             $player_id = kDraftHalt;
         }
         $statement = "insert into pick (pick_id, team_id, player_id) values ('$key', '".$teams[$value]."', $player_id)";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
  
 
@@ -671,7 +671,7 @@ Please verify that you are uploading the correct file and that you have the curr
                     $col["staff_id"] = $columns[ktrans_player_id];
                     //convert the transaction text to an id number
                     $transstatement = "select staff_trans_id from staff_trans_types where staff_trans_name='".trim($columns[ktrans_trans])."'";
-                    $transid = mysql_fetch_array(mysql_query($transstatement));
+                    $transid = mysqli_fetch_array(mysqli_query($mysql, $transstatement));
                     $col["staff_trans_id"] = $transid["staff_trans_id"];
                     $col["staff_team_id"] = $columns[ktrans_team_id];
                     $tables = [];
@@ -685,12 +685,12 @@ Please verify that you are uploading the correct file and that you have the curr
                         }
                     }
                     $statement = "insert into staff_trans_history (".implode(",", $tables).") values (".implode(",", $values).")";
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
 
                     //update the recently hired field
                     if ($col["staff_trans_id"] == 1 || $col["staff_trans_id"] == 3 || $col["staff_trans_id"] == 5 || $col["staff_trans_id"] == 7 || $col["staff_trans_id"] == 9) {
                         $statement = "UPDATE `staff` SET `staff_recent_hire`=1 WHERE `staff_in_game_id`='".$col["staff_id"]."'";
-                        mysql_query($statement);
+                        mysqli_query($mysql, $statement);
                     }
                 }
             } else {
@@ -720,7 +720,7 @@ Please verify that you are uploading the correct file and that you have the curr
         $adj_grade = $data[1][4];
         $statement = "update player set player_score = '$grade', player_adj_score = '$adj_grade' where
     player_name = '".addslashes($name)."' and position_id = '$position_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
           }
         }
       }

@@ -78,7 +78,7 @@ if ($_POST['pick_method_id']) {
     // Check to make sure that if we have a scout pick that we have a mock draft
     if ($_POST['pick_method_id'] == kScoutPick) {
         $statement = "select * from mock_draft";
-        if (!mysql_num_rows(mysql_query($statement))) {
+        if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $_SESSION['message'] = "Scout pick is not available for this draft.";
             $_POST['pick_method_id'] = kPlayerQueue;
         }
@@ -91,7 +91,7 @@ if ($login->is_site_admin() && !$has_email) {
     $_SESSION['message'] = "The admin account must have an e-mail address.";
 } else {
     $statement = "update team set ".implode(",", $col)." where team_id = '".$login->team_id()."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     if (!$_SESSION['message']) {
         $_SESSION['message'] = "Options updated.";
     }

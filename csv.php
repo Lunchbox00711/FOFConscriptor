@@ -28,20 +28,20 @@ if ($settings->get_value(kSettingStaffDraftOn) == 1) {
 if (!$staff) {
     $statement = "select * from pick, team, player where
    pick.team_id = team.team_id and player.player_id = pick.player_id order by pick_id";
-    $result = mysql_query($statement);
-    echo mysql_error();
+    $result = mysqli_query($mysql, $statement);
+    echo mysqli_error($mysql);
     $line = [];
-    while ($row = mysql_fetch_array($result)) {
+    while ($row = mysqli_fetch_array($result)) {
         list($first, $last) = explode(" ", $row['player_name']);
         $line[] = ceil(($row['pick_id']) / 32).','.($row['pick_id'] - ((ceil(($row['pick_id']) / 32) - 1) * 32)).','.$row['in_game_id'].','.$row['player_in_game_id'];
     }
 } else {
     $statement = "select * from pick, team, staff where
    pick.team_id = team.team_id and staff.staff_id = pick.player_id order by pick_id";
-    $result = mysql_query($statement);
-    echo mysql_error();
+    $result = mysqli_query($mysql, $statement);
+    echo mysqli_error($mysql);
     $line = [];
-    while ($row = mysql_fetch_array($result)) {
+    while ($row = mysqli_fetch_array($result)) {
         list($first, $last) = explode(" ", $row['staff_name']);
         $line[] = ceil(($row['pick_id']) / 32).','.$row['in_game_id'].','.$row['staff_in_game_id'];
     }

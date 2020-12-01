@@ -19,17 +19,19 @@
 
 class player
 {
-    public function player($player_id)
+    public function __construct($player_id)
     {
         global $settings;
-        $this->in_game_id = mysql_real_escape_string($player_id);
+        global $mysql;
+
+        $this->in_game_id = mysqli_real_escape_string($mysql, $player_id);
         if ($settings->get_value(kSettingStaffDraftOn) == 0) {
             $statement = "select player_id from player where player_in_game_id = ".$this->in_game_id;
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $this->player_id = $row['player_id'];
         } else {
             $statement = "select staff_id from staff where staff_in_game_id = ".$this->in_game_id;
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $this->player_id = $row['staff_id'];
         }
     }
@@ -37,6 +39,8 @@ class player
     public function draw()
     {
         global $login;
+        global $mysql;
+
         $tables[] = "player";
         $wheres[] = "player.player_id = '".$this->player_id."'";
         $col[] = "player.player_name";
@@ -118,11 +122,11 @@ if (player.player_pos_drill >= combine_ratings.combine_high_pos,
 
 NULL) player_pos_drill_style';
         $col[] = "player.player_developed";
-        $joins[] = "left join player_comments on player_comments.team_id = '".mysql_real_escape_string($login->team_id())."' and
+        $joins[] = "left join player_comments on player_comments.team_id = '".mysqli_real_escape_string($mysql, $login->team_id())."' and
 player_comments.player_id = player.player_id";
         $col[] = "player_comments.player_comments_text";
 
-        $joins[] = "left join team_player on team_player.player_id = player.player_id and team_player.team_id = '".mysql_real_escape_string($login->team_id())."'";
+        $joins[] = "left join team_player on team_player.player_id = player.player_id and team_player.team_id = '".mysqli_real_escape_string($mysql, $login->team_id())."'";
         $joins[] = "left join pick on pick.player_id = player.player_id";
         $joins[] = "left join team on team.team_id = pick.team_id";
         $col[] = "team.team_name";
@@ -131,7 +135,7 @@ player_comments.player_id = player.player_id";
         $statement = "select ".implode(",", $col)." from (".implode(",", $tables).")
 ".implode(" ", $joins)."
 where ".implode(" and ", $wheres);
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $html = file_get_contents("includes/html/player.html");
     
         $html = str_replace("%player_name%", "#".$this->player_id." ".$row['player_name'], $html);
@@ -181,6 +185,7 @@ where ".implode(" and ", $wheres);
     public function draw_staff()
     {
         global $login;
+        global $mysql;
         $tables[] = "staff";
         $wheres[] = "staff.staff_id = '".$this->player_id."'";
         $col[] = "staff.staff_name";
@@ -217,11 +222,11 @@ selection.team_id = '".$login->team_id()."'";
         $col[] = "staff_suitable_ac";
         $col[] = "staff_suitable_sc";
 
-        $joins[] = "left join player_comments on player_comments.team_id = '".mysql_real_escape_string($login->team_id())."' and
+        $joins[] = "left join player_comments on player_comments.team_id = '".mysqli_real_escape_string($mysql, $login->team_id())."' and
 player_comments.player_id = staff.staff_id";
         $col[] = "player_comments.player_comments_text";
 
-        $joins[] = "left join team_player on team_player.player_id = staff.staff_id and team_player.team_id = '".mysql_real_escape_string($login->team_id())."'";
+        $joins[] = "left join team_player on team_player.player_id = staff.staff_id and team_player.team_id = '".mysqli_real_escape_string($mysql, $login->team_id())."'";
         $joins[] = "left join pick on pick.player_id = staff.staff_id";
         $joins[] = "left join team on team.team_id = pick.team_id";
         $col[] = "team.team_name";
@@ -230,7 +235,7 @@ player_comments.player_id = staff.staff_id";
         $statement = "select ".implode(",", $col)." from (".implode(",", $tables).")
 ".implode(" ", $joins)."
 where ".implode(" and ", $wheres);
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $html = file_get_contents("includes/html/player.html");
     
         $html = str_replace("%player_name%", "#".$this->player_id." ".$row['staff_name'], $html);
@@ -417,11 +422,12 @@ alert("'.$dobmessage.'");
   
     public function draw_staff_data(&$row)
     {
-        //$dobmessage = $this->get_affinity($row['player_dob']);
+        global $mysql;
+
         if ($row['staff_curr_team_id']) {
             $statement = "select team_name from team where team.in_game_id=".$row['staff_curr_team_id'];
-            $result = mysql_query($statement);
-            $row2 = mysql_fetch_array($result);
+            $result = mysqli_query($mysql, $statement);
+            $row2 = mysqli_fetch_array($result);
         } else {
             $row2['team_name'] = "None";
         }
@@ -580,11 +586,12 @@ alert("'.$dobmessage.'");
 
     public function draw_attributes($position_id)
     {
-        $position_id = mysql_real_escape_string($position_id);
+        $position_id = mysqli_real_escape_string($mysql, $position_id);
         global $login;
+        global $mysql;
         // See if we have imported our own data
         $statement = "select * from team_player_to_attribute where team_id = '".$login->team_id()."' limit 1";
-        if (mysql_num_rows(mysql_query($statement))) {
+        if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $uploaded = true;
         } else {
             $uploaded = false;
@@ -598,7 +605,7 @@ alert("'.$dobmessage.'");
         }
         $html .= '
 <table align="center">';
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['player_current'] || $row['player_future']) {
             $aston_low = $row['score_low_'.$alias];
             $aston_high = $row['score_high_'.$alias];
@@ -626,10 +633,10 @@ alert("'.$dobmessage.'");
 attribute.attribute_id = position_to_attribute.attribute_id and
 position_to_attribute.position_id = '".$position_id."'
 order by position_to_attribute_order";
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $i = 0;
         $attributes = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $alias = "pa_$i";
             if ($uploaded) {
                 $tables[] = "team_player_to_attribute $alias";
@@ -649,8 +656,8 @@ order by position_to_attribute_order";
             $i++;
         }
         $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres);
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             foreach ($attributes as $alias => $name) {
                 if ($name == "Formations") {
                     continue;
@@ -692,6 +699,8 @@ order by position_to_attribute_order";
     public function left_nav($selection)
     {
         global $login;
+        global $mysql;
+
         // If we are a selection, show the previous pick
         $html .= '
 <div style="padding: 5px">';
@@ -703,7 +712,7 @@ pick.player_id = player.player_id and
 position.position_id = player.position_id and
 team.team_id = pick.team_id
 order by pick_id desc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">&laquo; Previous Pick:
@@ -720,7 +729,7 @@ position.position_id = player.position_id and
 player.player_id < '".$this->player_id."' and
 player.position_id = '".$this->position_id."'
 order by player_id desc";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">&laquo; Previous Available '.$row['position_name'].':
@@ -733,7 +742,7 @@ where pick.player_id is NULL and
 position.position_id = player.position_id and
 player.player_id < '".$this->player_id."'
 order by player_id desc";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">&laquo; Previous Available Player:
@@ -741,7 +750,7 @@ order by player_id desc";
             }
             // If in our priority queue, previous in list
             $statement = "select * from selection where team_id = '".$login->team_id()."' and player_id = '".$this->player_id."'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['selection_priority']) {
                 $statement = "select * from selection, player, position where
 team_id = '".$login->team_id()."' and
@@ -749,7 +758,7 @@ position.position_id = player.position_id and
 selection_priority < '".$row['selection_priority']."' and
 selection.player_id = player.player_id
 order by selection_priority desc limit 1";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 if ($row['player_id']) {
                     $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">&laquo; Previous In Queue (priority '.$row['selection_priority'].'):
@@ -767,6 +776,7 @@ order by selection_priority desc limit 1";
     public function right_nav($selection)
     {
         global $login;
+        global $mysql;
         // If we are a selection, show the next pick
         $html .= '
 <div style="padding: 5px">';
@@ -778,7 +788,7 @@ pick.player_id = player.player_id and
 position.position_id = player.position_id and
 team.team_id = pick.team_id
 order by pick_id limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">Next Pick:
@@ -795,7 +805,7 @@ position.position_id = player.position_id and
 player.player_id > '".$this->player_id."' and
 player.position_id = '".$this->position_id."'
 order by player_id";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">Next Available '.$row['position_name'].':
@@ -808,7 +818,7 @@ where pick.player_id is NULL and
 position.position_id = player.position_id and
 player.player_id > '".$this->player_id."'
 order by player_id";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">Next Available Player:
@@ -816,7 +826,7 @@ order by player_id";
             }
             // If in our priority queue, next in list
             $statement = "select * from selection where team_id = '".$login->team_id()."' and player_id = '".$this->player_id."'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['selection_priority']) {
                 $statement = "select * from selection, player, position where
 team_id = '".$login->team_id()."' and
@@ -824,7 +834,7 @@ position.position_id = player.position_id and
 selection_priority > '".$row['selection_priority']."' and
 selection.player_id = player.player_id
 order by selection_priority limit 1";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 if ($row['player_id']) {
                     $link[] = '
 <a href="show_player.php?in_game_id='.$row['player_in_game_id'].'">Next In Queue (priority '.$row['selection_priority'].'):

@@ -164,14 +164,15 @@ class page
     {
         global $settings;
         global $login;
-        $html .= '<i>'.date("g:i a T").'</i> - ';
+        global $mysql;
+        $html = '<i>'.date("g:i a T").'</i> - ';
         if ($settings->get_value(kSettingChatType) == kChatTypePHP) {
             // First see if theres a chat update from the last we checked
             if (!$_SESSION['latest_message']) {
                 $_SESSION['latest_message'] = $login->latest_message();
             }
             $statement = "select * from last_update";
-            $update = mysql_fetch_array(mysql_query($statement));
+            $update = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if (($update['latest_message']) >= ($_SESSION['latest_message'])) {
                 $login->set_latest_message();
                 $_SESSION['latest_message'] = $login->latest_message();
@@ -180,7 +181,7 @@ class page
         where team_2_id = '".$login->team_id()."' and team_2_arrived is NULL and
         team.team_id = chat_room.team_1_id and
         chat_room_ping > '".date("Y-m-d H:i:s", strtotime("-30 seconds"))."'";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 if ($row['chat_room_id']) {
                     $message = "<b>Private chat invitation from ".$row['team_name']." -
         <a href=\"javascript:popup('private_chat.php?chat_room_id=".$row['chat_room_id']."', '_blank', 600, 450)\">Click Here</a></b>";
@@ -200,7 +201,7 @@ class page
         and chat_id > '".$_SESSION['last_chat_id']."'
         and chat_room_id is NULL
         order by chat_id limit 1";
-                    $row = mysql_fetch_array(mysql_query($statement));
+                    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                     if ($row['chat_id']) {
                         $_SESSION['last_chat_id'] = $row['chat_id'];
                         $team = $row['team_name'];
@@ -243,7 +244,7 @@ class page
         $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres)."
 order by pick_id
 limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['pick_id']) {
             $pick = $row['pick_id'] % 32;
             if ($pick == 0) {
@@ -298,7 +299,7 @@ On the clock: '.$row['team_name'].' (round '.ceil(($row['pick_id']) / 32).', pic
         } else {
             // We are either done or halted
             $statement = "select count(*) num from pick where player_id = '".kDraftHalt."'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['num']) {
                 // Draft is halted
                 $html .= '
@@ -315,7 +316,9 @@ Draft is complete';
     {
         global $login;
         global $settings;
+        global $mysql;
         $menu = [];
+        $html = '';
         if (!$login->team_id()) {
             // Guest
             $menu['Log In'] = 'login_page.php';
@@ -357,7 +360,7 @@ Draft is complete';
         }
         // Everyone can see the mock draft if it's there
         $statement = "select * from mock_draft";
-        if (mysql_num_rows(mysql_query($statement))) {
+        if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $menu['MockDraft'] = 'mock_draft.php';
         }
         $html .= '
@@ -405,6 +408,7 @@ Draft is complete';
     {
         global $settings;
         global $login;
+        global $mysql;
     
         if ($settings->get_value(kSettingChatType) == kChatTypeFlash) {
             $content .= file_get_contents("includes/html/chat.html");
@@ -445,9 +449,9 @@ Draft is complete';
             }
             $statement .= "
     order by chat_time";
-            $result = mysql_query($statement);
+            $result = mysqli_query($mysql, $statement);
             $chat = '<span class="chat_text">';
-            while ($row = mysql_fetch_array($result)) {
+            while ($row = mysqli_fetch_array($result)) {
                 if ($login->is_admin() || 1) {
                     $chat .= '
     <span class="chat_time">('.date("m/d g:i:s a T", strtotime($row['chat_time'])).')</span><br>';
@@ -472,13 +476,15 @@ Draft is complete';
     public function draw_players()
     {
         global $login;
+        global $mysql;
+
         if (!$login->team_id()) {
             header("Location: ./");
             exit;
         }
         // See if we have imported our own data
         $statement = "select * from team_player_to_attribute where team_id = '".$login->team_id()."' limit 1";
-        if (mysql_num_rows(mysql_query($statement))) {
+        if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $uploaded = true;
         } else {
             $uploaded = false;
@@ -503,10 +509,10 @@ concat('<a href=\"show_player.php?in_game_id=', player.player_in_game_id, '\">',
 attribute.attribute_id = position_to_attribute.attribute_id and
 position_to_attribute.position_id = '".$_GET['position_id']."'
 order by position_to_attribute_order";
-            $result = mysql_query($statement);
-            echo mysql_error();
+            $result = mysqli_query($mysql, $statement);
+            echo mysqli_error($mysql);
             $i = 0;
-            while ($row = mysql_fetch_array($result)) {
+            while ($row = mysqli_fetch_array($result)) {
                 $alias = "pa_$i";
                 if ($uploaded) {
                     $tables[] = "team_player_to_attribute $alias";
@@ -672,6 +678,8 @@ where ".implode(" and ", $wheres);
     public function draw_staff()
     {
         global $login;
+        global $mysql;
+
         if (!$login->team_id()) {
             header("Location: ./");
             exit;
@@ -799,7 +807,7 @@ To choose specific staff, change your preferences in the "Options" tab.';
         if ($_GET['filter_suitable']) {
             $checked = " checked";
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -854,15 +862,17 @@ where ".implode(" and ", $wheres);
     {
         global $login;
         global $settings;
+        global $mysql;
+        $html = '';
     
         //build list of logged on users
         $statement = "select team.team_name, team.team_id, team_owner
 from team where team.team_chat_time > '".date("Y-m-d H:i:s", strtotime("-10 seconds"))."'
 order by team_name";
-        $result = mysql_query($statement);
-        echo mysql_error();
+        $result = mysqli_query($mysql, $statement);
+        echo mysqli_error($mysql);
         $users = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $users[] = $row['team_owner'];
         }
     
@@ -890,7 +900,7 @@ If you skip a pick you will have the ability to "unskip" it as well.</p>';
         $list->set_header("pick_id", "Pick");
         $tables[] = "team";
         $wheres[] = "team.team_id = pick.team_id";
-        if ($_GET['team_id']) {
+        if ($_GET['team_id'] ?? null) {
             $wheres[] = "team.team_id = '".$_GET['team_id']."'";
             $list->append_query(["team_id" => $_GET['team_id']]);
         }
@@ -984,9 +994,9 @@ skip";
         <select name="team_id">
           <option value="">All</option>';
         $statement = "select * from team where in_game_id>'-1' and in_game_id<'32' order by team_name";
-        $result = mysql_query($statement);
-        echo mysql_error();
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        echo mysqli_error($mysql);
+        while ($row = mysqli_fetch_array($result)) {
             if ($row['team_id'] == $_GET['team_id']) {
                 $selected = " selected";
             } else {
@@ -1019,6 +1029,8 @@ where ".implode(" and ", $wheres)." group by pick_id";
     public function draw_mock_draft()
     {
         global $login;
+        global $mysql;
+
         if ($login->team_id()) {
             $html .= '
 <h3>Mock Draft</h3>
@@ -1073,9 +1085,9 @@ where ".implode(" and ", $wheres)." group by pick_id";
         <select name="team_id">
           <option value="">All</option>';
         $statement = "select * from team where team_id != '".kAdminUser."' and team_name != 'xxx' order by team_name";
-        $result = mysql_query($statement);
-        echo mysql_error();
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        echo mysqli_error($mysql);
+        while ($row = mysqli_fetch_array($result)) {
             if ($row['team_id'] == $_GET['team_id']) {
                 $selected = " selected";
             } else {
@@ -1269,8 +1281,9 @@ players at once.</p>
 
     public function draw_staff_priority_list($team_id)
     {
-        global  $login;
+        global $login;
         global $settings;
+        global $mysql;
         $statement = "select * from staff_selection where ";
         if ($team_id) {
             $wheres[] = "staff_selection.team_id = '$team_id' and staff_selection.staff_role=1";
@@ -1279,10 +1292,10 @@ players at once.</p>
         }
         $statement .= $wheres;
         $staff_statement = "select * from staff";
-        $result = mysql_query($staff_statement);
-        echo mysql_error();
+        $result = mysqli_query($mysql, $staff_statement);
+        echo mysqli_error($mysql);
         $html .= "<SELECT id=\"a\" size=\"10\" multiple>";
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $html .= "<OPTION value=\"a\">".$row['staff_name']."</OPTION>";
         }
         $html .= "</SELECT>
@@ -1532,6 +1545,7 @@ where ".implode(" and ", $wheres);
     public function draw_decline_pick()
     {
         global $login;
+        global $mysql;
         if (!$login->is_admin() && $login->team_id() != $this->data['team_id']) {
             header("Location: ./");
             exit;
@@ -1541,19 +1555,19 @@ where ".implode(" and ", $wheres);
         //first make sure they have someone in this position
         $round = floor(($pick_id - 1) / 32) + 1;
         $statement = "select team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($tid = $row["team_id"]) {
             //we found the team
             $statement = "select in_game_id from team where team_id=".$tid.";";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $tid = $row["in_game_id"];
             $statement = "select * from staff where fired=0 and drafted=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
-            $result = mysql_fetch_array(mysql_query($statement));
+            $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($result["staff_name"] != '') {
                 //they DO have a staff member in this position and can decline it.
                 $statement = "update pick set player_id = '".kDeclinePick."' where pick_id = '".$_GET['pick_id']."'
 and player_id is NULL";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 // Update the draft clock
                 reset_current_pick_clock();
                 process_pick_queue();
@@ -1719,6 +1733,7 @@ where ".implode(" and ", $wheres)." group by team.team_id";
         // Allows the draft to be rolled back to a pick
         global $login;
         global $settings;
+        global $mysql;
     
         if (!$login->is_admin()) {
             header("Location: ./");
@@ -1756,15 +1771,15 @@ draft again).</p>';
 
         $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres).'
 order by pick_id desc';
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 if ($row['pick.player_id'] == kDeclinePick) {
                     $html .= '
           <option value="'.$row['pick_id'].'">'.calculate_pick($row['pick_id']).' - '.$row['team_name'].' - Declined</option>';
                 } else {
                     $statement = "select staff_name from staff where staff.staff_id='".$row['pick.player_id']."'";
-                    $row2 = mysql_fetch_array(mysql_query($statement));
+                    $row2 = mysqli_fetch_array(mysqli_query($mysql, $statement));
                     $html .= '
           <option value="'.$row['pick_id'].'">'.calculate_pick($row['pick_id']).' - '.$row['team_name'].' - '.
     $row2['staff_name'].'</option>';
@@ -1819,13 +1834,15 @@ order by pick_id desc';
     public function draw_link_teams()
     {
         global $login;
+        global $mysql;
+
         if (!$login->is_admin()) {
             header("Location: ./");
             exit;
         }
         // Show all the teams and give the ability to link them to their corresponding names
         $statement = "select * from team_to_name order by team_name";
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $html .= '
 <h3>Link Teams</h3>
 <p>Use this table to link the team names to their 3-letter code.  Some of the values may be guessed;
@@ -1836,7 +1853,7 @@ please take the time to verify their accuracy.</p>
     <td class="heading">Team</td>
     <td class="heading">Code</td>
   </tr>';
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $team = new team($row['team_id']);
             $html .= '
   <input type="hidden" name="team_name['.$row['team_to_name_id'].']" value="'.$row['team_name'].'">
@@ -1881,8 +1898,8 @@ affect future scout picks.</p>
     <td class="heading">Weight</td>
   </tr>';
         $statement = "select * from position order by position_id";
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             if ($class == 'dark') {
                 $class = "light";
             } else {
@@ -1912,9 +1929,9 @@ affect future scout picks.</p>
 </form>';
         if ($_POST['query']) {
             $statement = $_POST['query'];
-            $result = mysql_query($statement);
+            $result = mysqli_query($mysql, $statement);
             $data = [];
-            while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+            while ($row = mysqli_fetch_array($result, MYSQL_ASSOC)) {
                 $header = [];
                 foreach ($row as $key => $value) {
                     $header[] = $key;
@@ -1940,9 +1957,9 @@ affect future scout picks.</p>
                 } else {
                     $statement = "select * from $table order by ".$table."_id";
                 }
-                $result = mysql_query($statement);
+                $result = mysqli_query($mysql, $statement);
                 $data = [];
-                while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+                while ($row = mysqli_fetch_array($result, MYSQL_ASSOC)) {
                     $data[] = "<td>".implode("</td><td>", $row)."</td>";
                 }
                 $html .= '

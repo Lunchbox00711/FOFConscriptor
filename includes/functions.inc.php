@@ -20,6 +20,7 @@
 function make_pick($pick_id, $player_id, $recursive = false)
 {
     global $settings;
+    global $mysql;
 
     $staff = false;
     if ($settings->get_value(kSettingStaffDraftOn) == 1) {
@@ -29,23 +30,23 @@ function make_pick($pick_id, $player_id, $recursive = false)
     if ($pick_id) {
         $statement = "select * from pick where player_id = '$player_id'";
         // Make sure that the player has not already been picked
-        if (!mysql_num_rows(mysql_query($statement))) {
+        if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $statement = "update pick set player_id = '$player_id'
 where pick_id = '$pick_id' and (player_id is NULL or player_id = '".kSkipPick."')";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
 
             $modified = false;
-            if (mysql_affected_rows()) {
+            if (mysqli_affected_rows($mysql)) {
                 $modified = true;
             }
             // Delete the player from anyone's queue
             // Re-grab the player to make sure we don't have a race condition
             $statement = "select * from pick where pick_id = '$pick_id'";
-            $row = mysql_fetch_array(mysql_query($statement));
-            echo mysql_error();
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            echo mysqli_error($mysql);
             $player_id = $row['player_id'];
             $statement = "delete from selection where player_id = '$player_id'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
       
             // If staff draft update
             // update picked guy's role so team he vacated has a hole
@@ -54,24 +55,24 @@ where pick_id = '$pick_id' and (player_id is NULL or player_id = '".kSkipPick."'
             if ($staff) {
                 //update the guy that was picked so team he left has a hole in case they try to decline a pick
                 $statement = "update staff set drafted=1, fired=0 where staff_id = ".$player_id;
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $round = floor(($pick_id - 1) / 32) + 1;
                 $statement = "select team_id from `pick` where pick_id = '$pick_id'";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 if ($tid = $row["team_id"]) {
                     //we found the team
                     $statement = "select in_game_id from team where team_id=".$tid.";";
-                    $row = mysql_fetch_array(mysql_query($statement));
+                    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                     $tid = $row["in_game_id"];
                     $statement = "select * from staff where drafted=0 and fired=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
-                    $result = mysql_fetch_array(mysql_query($statement));
+                    $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
                     if ($result["staff_name"] != '') {
                         //they DID have someone in this role!  Mark him fired
                         $statement = "select * from staff_trans_history order by input_file_number desc limit 1";
-                        $row = mysql_fetch_array(mysql_query($statement));
+                        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                         $filenumber = $row['input_file_number'];
                         $statement = "update staff set fired=1 where staff_curr_team_id=".$tid." and staff_role_id=".$round;
-                        mysql_query($statement);
+                        mysqli_query($mysql, $statement);
                     }
                 }
                 //compute next pick number
@@ -88,7 +89,7 @@ pick, team, player where pick.pick_id = '$pick_id' and team.team_id = pick.team_
                 $statement = "select team.team_id, team.team_multipos from pick, team, staff where pick.pick_id = '$pick_id' and
 team.team_id = pick.team_id and staff.staff_id = pick.player_id";
             }
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $team_id = $row['team_id'];
             if ($row['team_multipos'] == '0') {
                 // Clear out any other players from this team's queue that have the same position
@@ -100,20 +101,20 @@ team.team_id = pick.team_id and staff.staff_id = pick.player_id";
   player.position_id = '".$row['position_id']."' and player.player_id = selection.player_id and selection.team_id = '".$row['team_id']."'";
                 }
 
-                $result = mysql_query($statement);
-                while ($row = mysql_fetch_array($result)) {
+                $result = mysqli_query($mysql, $statement);
+                while ($row = mysqli_fetch_array($result)) {
                     $statement = "update selection set selection_priority = '0' where
   team_id = '".$team_id."' and player_id = '".$row['player_id']."'";
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
                 }
             }
             // Mark the team_need for this team at this position as being done
             if (!$staff) {
                 $statement = "select position_id from player where player_id = '$player_id'";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 $statement = "update team_need set pick_id = '$pick_id' where team_id = '$team_id' and
 position_id = '".$row['position_id']."'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
 
 
@@ -121,7 +122,7 @@ position_id = '".$row['position_id']."'";
             // Send e-mail only if we actually modified a row and email is on
             if ($modified) {
                 $statement = "select * from team where team_id = '".kAdminUser."'";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 $from = "FOF Draft Admin <".$row['team_email'].">";
                 $fromaddress = $row['team_email'];
                 if (!$staff) {
@@ -136,7 +137,7 @@ position.position_id = player.position_id";
 pick, team, staff where pick.pick_id = '$pick_id' and team.team_id = pick.team_id and staff.staff_id = pick.player_id";
                 }
 
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 $round = floor(($pick_id - 1) / 32) + 1;
                 $pick = (($pick_id - 1) % 32) + 1;
                 //Changing the subject to preserve GMAIL subject threading
@@ -157,8 +158,8 @@ where pick.team_id = team.team_id
 and pick.player_id is NULL
 order by pick_id
 limit 1";
-                $result = mysql_query($statement);
-                $row = mysql_fetch_array($result);
+                $result = mysqli_query($mysql, $statement);
+                $row = mysqli_fetch_array($result);
         
                 if ($row['team_name']) {
                     $on_clock = $row['team_id'];
@@ -167,7 +168,7 @@ limit 1";
                     $new_start = $team->new_pick_time(time());
                     $statement = "update pick set pick.pick_time = '$new_start', pick_start = '".date("Y-m-d H:i:s")."'
 where pick_id = '".$row['pick_id']."'";
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
                     $message .= '
 '.$row['team_name'].' is on the clock.';
 
@@ -185,7 +186,7 @@ where pick_id = '".$row['pick_id']."'";
                 } else {
                     // We are either done or halted
                     $statement = "select count(*) num from pick where player_id = '".kDraftHalt."'";
-                    $row = mysql_fetch_array(mysql_query($statement));
+                    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                     if ($row['num']) {
                         // Draft is halted
                         $message .= '
@@ -200,9 +201,9 @@ Draft is complete.';
     case kEmailAll:
       $statement = "select * from team where team_email is not NULL and
 team_id != '".kAdminUser."' and team_email_prefs != ".kOptionNoEmail;
-      $result = mysql_query($statement);
+      $result = mysqli_query($mysql, $statement);
       $to = [];
-      while ($row = mysql_fetch_array($result)) {
+      while ($row = mysqli_fetch_array($result)) {
           // if the team only wants e-mails when they are going on the clock, then only send
           // if they are on the clock.
           if (($row['team_email_prefs'] == kOptionMyEmail && $row['team_id'] == $on_clock) ||
@@ -212,8 +213,8 @@ team_id != '".kAdminUser."' and team_email_prefs != ".kOptionNoEmail;
       }
        $statement = "select * from team where team_phone is not NULL and
 team_id != '".kAdminUser."' and team_sms_setting != ".kOptionNoSMS;
-      $result = mysql_query($statement);
-      while ($row = mysql_fetch_array($result)) {
+      $result = mysqli_query($mysql, $statement);
+      while ($row = mysqli_fetch_array($result)) {
           // if the team only wants sms when they are going on the clock, then only send
           // if they are on the clock.
           if (($row['team_sms_setting'] == kOptionMySMS && $row['team_id'] == $on_clock) ||
@@ -293,7 +294,7 @@ team_id != '".kAdminUser."' and team_sms_setting != ".kOptionNoSMS;
                 // The player needs to be removed from the queues
                 // This can happen if the e-mails time out the selections
                 $statement = "delete from selection where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }
 
@@ -306,26 +307,27 @@ team_id != '".kAdminUser."' and team_sms_setting != ".kOptionNoSMS;
 
 function update_staff_amenable($round, $pick_of_new_on_clock_team)
 {
+    global $mysql;
     //first mark everyone amenable
     $statement = "UPDATE `staff` SET `staff_amenable`='Y' WHERE `staff_retired`!=1";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 
     //now process the reasons why someone would not be amenable to being drafted by a given team.
     ///calculate draft order of current team and the current team in game id
     //but we need to know the current team's ID number as well.  Get it from the pick number order
     $statement = "select team_id from `pick` where `player_id` is NULL or `player_id`=-100 order by pick_id asc limit 1";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     $tid = $row["team_id"];
     $statement = "select in_game_id from team where team_id=".$tid.";";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     $tid = $row["in_game_id"];
 
     //if you've ever been fired by this team you don't want the job
     $statement = "select staff_id from staff_trans_history where staff_team_id=".$tid." and (staff_trans_id=2 or staff_trans_id=4 or staff_trans_id=6 or staff_trans_id=8 or staff_trans_id=10)";
-    $result = mysql_query($statement);
-    while ($result && $row = mysql_fetch_array($result)) {
+    $result = mysqli_query($mysql, $statement);
+    while ($result && $row = mysqli_fetch_array($result)) {
         $wasfired = "update staff set staff_amenable='N' where staff_id=".$row["staff_id"].";";
-        mysql_query($wasfired);
+        mysqli_query($mysql, $wasfired);
     }
 
     if ($round == 1) {//HC round
@@ -346,7 +348,7 @@ function update_staff_amenable($round, $pick_of_new_on_clock_team)
         $statement = "UPDATE `staff` SET `staff_amenable`='N' WHERE `staff_retired`=1 or (`fired`=0 and `staff_recent_hire`=1) or (`fired`=0 and `staff_role_id`=1 and `staff_curr_team_id`!=99 and `staff_yrs_on_contract`>0) or 
 (`fired`=0 and `staff_yrs_on_contract`>3) or (`fired`=0 and `staff_curr_team_id`!=99) or (`staff_role_id`!=5 ) or (`fired`=0 and `staff_role_id`<5 and `staff_curr_team_id`!=99 ) or (`fired`=0 and `staff_yrs_on_contract`=1 and `staff_role_id`=5 and `staff_team_draft_order`-'$pick_of_new_on_clock_team'>3));";
     }
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     /*
     SELECT * FROM `staff` WHERE `staff_retired`=1 or
     (`staff_role_id`=0 and `staff_curr_team_id`!=99) or
@@ -366,16 +368,13 @@ function update_staff_amenable($round, $pick_of_new_on_clock_team)
 
 function process_pick_queue()
 {
-    // Lock the database
-    //$statement = "flush tables with read lock";
-    //mysql_query($statement);
-    // First check for any skipped team's picks
+    global $mysql;
     $statement = "select pick.pick_id, team.team_id, pick.pick_time from pick, team where
 pick.player_id = '".kSkipPick."'
 and pick.team_id = team.team_id
 order by pick.pick_id";
-    $result = mysql_query($statement);
-    while ($row = mysql_fetch_array($result)) {
+    $result = mysqli_query($mysql, $statement);
+    while ($row = mysqli_fetch_array($result)) {
         if ($row['team_id']) {
             $team = new team($row['team_id']);
             $player_id = $team->next_player($row['pick_start']);
@@ -400,7 +399,7 @@ order by pick.pick_id";
 where ".implode(" and ", $wheres)."
 order by pick.pick_id limit 1";
 
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     $team = new team($row['team_id']);
     $player_id = $team->next_player($row['pick_start']);
     if ($player_id) {
@@ -425,8 +424,9 @@ function calculate_pick($pick)
 
 function calculate_round()
 {
+    global $mysql;
     $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     $pick_id = $row["pick_id"];
     return floor(($pick_id) / 32) + 1;
 }
@@ -434,6 +434,7 @@ function calculate_round()
 function process_expired_picks()
 {
     global $settings;
+    global $mysql;
     $limit = $settings->get_value(kSettingPickTimeLimit);
     if (!$limit) {
         // No limit, nothing to do
@@ -453,7 +454,7 @@ time_to_sec(timediff(date_add(pick.pick_time, interval (".$limit."*team.team_clo
     $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres)."
 order by pick_id
 limit 1";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     if ($row['time_left'] < 0) {
         // Adjust the team's autopick value
         $team = new team($row['team_id']);
@@ -465,25 +466,25 @@ limit 1";
             $player_id = $team->force_pick();
             // Mark that this pick has expired
             $statement = "update pick set pick_expired = '1' where pick_id = '".$row['pick_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             if ($player_id && $player_id != kDeclinePick) {
                 make_pick($row['pick_id'], $player_id, false);
             } elseif ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 $statement = "update pick set player_id = '".kDeclinePick."' where pick_id = '".$row['pick_id']."'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $player_id = true;
             } else {
                 $statement = "update pick set player_id = '".kSkipPick."' where pick_id = '".$row['pick_id']."'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $player_id = true;
             }
         } elseif ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $statement = "update pick set player_id = '".kDeclinePick."' where pick_id = '".$row['pick_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             $player_id = true;
         } else {
             $statement = "update pick set player_id = '".kSkipPick."' where pick_id = '".$row['pick_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             $player_id = true;
         }
         if ($player_id) {
@@ -499,40 +500,43 @@ limit 1";
 
 function reset_current_pick_clock()
 {
+    global $mysql;
     // Checks the current pick and sets the clock if the clock is not yet set
     $statement = "select * from pick where player_id is NULL order by pick_id limit 1";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     if ($row['pick_id'] && !$row['pick_time']) {
         $team = new team($row['team_id']);
         $statement = "update pick set pick_time = '".$team->new_pick_time(time())."',
 pick_start = '".date("Y-m-d H:i:s")."'
 where pick_id = '".$row['pick_id']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 
 function fill_team_need()
 {
+    global $mysql;
     $statement = "select pick_id, position_id, team_id from pick, player where
 player.player_id = pick.player_id";
-    $result = mysql_query($statement);
-    while ($row = mysql_fetch_array($result)) {
+    $result = mysqli_query($mysql, $statement);
+    while ($row = mysqli_fetch_array($result)) {
         $team_id = $row['team_id'];
         $pick_id = $row['pick_id'];
         $position_id = $row['position_id'];
         $statement = "update team_need set pick_id = '$pick_id' where team_id = '$team_id' and position_id = '$position_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 
 // This last bit of code converts plaintext passwords in the database to encrypted
 function encrypt_passwords()
 {
+    global $mysql;
     $statement = "select * from team where team_password is not NULL and char_length(team_password) < 32";
-    $result = mysql_query($statement);
-    echo mysql_error();
-    while ($row = mysql_fetch_array($result)) {
+    $result = mysqli_query($mysql, $statement);
+    echo mysqli_error($mysql);
+    while ($row = mysqli_fetch_array($result)) {
         $statement = "update team set team_password = '".md5($row['team_password'])."' where team_id = '".$row['team_id']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }

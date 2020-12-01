@@ -26,12 +26,12 @@ order by selection_priority = '0',
 selection_priority,
 player.player_adj_score desc,
 player.player_id";
-$result = mysql_query($statement);
+$result = mysqli_query($mysql, $statement);
 $current = 10;
-while ($row = mysql_fetch_array($result)) {
+while ($row = mysqli_fetch_array($result)) {
     $statement = "update selection set selection_priority = '$current' where
 team_id = '".$row['team_id']."' and player_id = '".$row['player_id']."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $current += 10;
 }
 

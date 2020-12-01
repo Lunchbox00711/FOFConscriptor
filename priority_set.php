@@ -32,7 +32,7 @@ if (is_array($_POST['player_id'])) {
         }
         $statement = "update selection set selection_priority = '$value'
 where team_id = '".$login->team_id()."' and player_id = '$player_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $count++;
     }
 }
@@ -41,7 +41,7 @@ where team_id = '".$login->team_id()."' and player_id = '$player_id'";
 if (is_array($_POST['delete'])) {
     foreach ($_POST['delete'] as $player_id) {
         $statement = "delete from selection where team_id = '".$login->team_id()."' and player_id = '$player_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 

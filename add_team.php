@@ -20,9 +20,9 @@
 include "includes/classes.inc.php";
 if ($login->is_admin() && $_POST['team_name']) {
     $statement = "select * from team where team_name like '".$_POST['team_name']."'";
-    if (!mysql_num_rows(mysql_query($statement))) {
+    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
         $statement = "insert into team (team_name) values ('".strtoupper($_POST['team_name'])."')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     } else {
         $_SESSION['message'] = "That team name already exists.";
     }

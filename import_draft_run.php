@@ -45,25 +45,25 @@ if ($admin) {
 // Ok, all is well, first let's clear out the existing draft data
 if ($admin) {
     $statement = "truncate table pick";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player_comments";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_player";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table player_to_attribute";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_player_to_attribute";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table selection";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table bpa";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table team_need";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "truncate table mock_draft";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $col[] = "team_clock_adj = '1'";
     $col[] = "team_autopick = '0'";
     $col[] = "pick_method_id = '3'";
@@ -71,29 +71,29 @@ if ($admin) {
     $col[] = "team_email_prefs = '0'";
     $col[] = "team_sms_setting = '0'";
     $statement = "update team set ".implode(",", $col)." where team_id != '1'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 } else {
     $statement = "delete from team_player where team_id = '".$login->team_id()."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $statement = "delete from team_player_to_attribute where team_id = '".$login->team_id()."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 }
 
 // Now for the import
 include "includes/extractor_columns.inc.php";
 
 // Interrogator contstants
-define(kInterrogatorPlayerID, 1);
-define(kInterrogatorLastName, 3);
-define(kInterrogatorFirstName, 4);
-define(kInterrogatorPopularity, 17);
-define(kInterrogatorLoyalty, 8);
-define(kInterrogatorPlaysToWin, 9);
-define(kInterrogatorPersonality, 10);
-define(kInterrogatorLeadership, 11);
-define(kInterrogatorIntel, 12);
-define(kInterrogatorRedFlag, 13);
-define(kInterrogator, 17);
+define('kInterrogatorPlayerID', 1);
+define('kInterrogatorLastName', 3);
+define('kInterrogatorFirstName', 4);
+define('kInterrogatorPopularity', 17);
+define('kInterrogatorLoyalty', 8);
+define('kInterrogatorPlaysToWin', 9);
+define('kInterrogatorPersonality', 10);
+define('kInterrogatorLeadership', 11);
+define('kInterrogatorIntel', 12);
+define('kInterrogatorRedFlag', 13);
+define('kInterrogator', 17);
 
 $file = file_get_contents($players_file);
 $lines = preg_split("/[\n\r]+/", $file);
@@ -147,7 +147,7 @@ Please verify that you are uploading the correct file and that you have the curr
             $statement = "select * from player where player_name = '".addslashes($columns[kName])."' and
 position_id = '".$positions[$columns[kPosition]]."' and
 player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))."'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $col["player_id"] = $row['player_id'];
             $player_id = $row['player_id'];
             if ($row['player_id']) {
@@ -183,11 +183,11 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
     
         if ($login->is_admin()) {
             $statement = "insert into player (".implode(",", $tables).") values (".implode(",", $values).")";
-            mysql_query($statement);
-            $player_id = mysql_insert_id();
+            mysqli_query($mysql, $statement);
+            $player_id = mysqli_insert_id($mysql);
         } else {
             $statement = "insert into team_player(".implode(",", $tables).") values (".implode(",", $values).")";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
 
         // Attributes
@@ -200,8 +200,8 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
         $cur_col = 35;
         $statement = "select * from position_to_attribute where position_id = '".$positions[$columns[kPosition]]."'
 order by position_to_attribute_order";
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             if ($qb && $row['attribute_id'] == 1) {
                 // This is the odd attribute, formations, with only one value
                 if ($admin) {
@@ -233,7 +233,7 @@ values
 ('".$login->team_id()."','$player_id', '".$row['attribute_id']."', '$low', '$high')";
                 }
             }
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     } else {
         $header = false;
@@ -251,9 +251,9 @@ if ($admin) {
     $pick_order = ['xxx']; // Initialize to the "no pick" value
     // Add the "no pick" value to the database
     $statement = "select * from team where team_name = 'xxx'";
-    if (!mysql_num_rows(mysql_query($statement))) {
+    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
         $statement = "insert into team (team_name, team_password) values ('xxx', '".md5(uniqid(rand()))."')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
     foreach ($lines as $line) {
         $pick = $round;
@@ -266,18 +266,18 @@ if ($admin) {
                 if ($value) {
                     if (!array_key_exists($value, $teams)) {
                         $statement = "select * from team where team_name = '$value'";
-                        $row = mysql_fetch_array(mysql_query($statement));
+                        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                         if (!$row['team_id']) {
                             $statement = "insert into team (team_name) values ('$value')";
-                            mysql_query($statement);
-                            $teams[$value] = mysql_insert_id();
+                            mysqli_query($mysql, $statement);
+                            $teams[$value] = mysqli_insert_id($mysql);
                             $team_id = $teams[$value];
                             // Populate the default colmuns, 1-12
                             $i = 1;
                             while ($i <= 12) {
                                 $statement = "insert into team_to_column (team_id, column_id, team_to_column_order)
 values ('$team_id', '$i', '$i')";
-                                mysql_query($statement);
+                                mysqli_query($mysql, $statement);
                                 $i++;
                             }
                         } else {
@@ -306,7 +306,7 @@ values ('$team_id', '$i', '$i')";
             $player_id = kDraftHalt;
         }
         $statement = "insert into pick (pick_id, team_id, player_id) values ('$key', '".$teams[$value]."', $player_id)";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 
     // draftpreview.html
@@ -323,7 +323,7 @@ values ('$team_id', '$i', '$i')";
                 $adj_grade = $data[1][4];
                 $statement = "update player set player_score = '$grade', player_adj_score = '$adj_grade' where
 player_name = '".addslashes($name)."' and position_id = '$position_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }
     }
@@ -343,7 +343,7 @@ player_name = '".addslashes($name)."' and position_id = '$position_id'";
             // See if the player exists
             $name = addslashes($columns[kInterrogatorFirstName].' '.$columns[kInterrogatorLastName]);
             $statement = "select * from player where player_name like '$name'";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $interrogator_players[$columns[kInterrogatorPlayerID]] = $row['player_id'];
             }
@@ -362,25 +362,25 @@ player_name = '".addslashes($name)."' and position_id = '$position_id'";
             if ($player_id) {
                 $statement = "update player set player_popularity = '".$columns[kInterrogatorPopularity]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_winner = '".$columns[kInterrogatorPlaysToWin]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_loyalty = '".$columns[kInterrogatorLoyalty]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_personality = '".$columns[kInterrogatorPersonality]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_leader = '".$columns[kInterrogatorLeadership]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_intelligence = '".$columns[kInterrogatorIntel]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 $statement = "update player set player_character = '".$columns[kInterrogatorRedFlag]."'
 where player_id = '$player_id'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }
     }

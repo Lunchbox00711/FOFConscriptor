@@ -53,7 +53,7 @@ if ($_POST['pick_method_id']) {
     // Check to make sure that if we have a scout pick that we have a mock draft
     if ($_POST['pick_method_id'] == kScoutPick) {
         $statement = "select * from mock_draft";
-        if (!mysql_num_rows(mysql_query($statement))) {
+        if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $_SESSION['message'] = "Scout pick is not available for this draft.";
             $_POST['pick_method_id'] = kPlayerQueue;
         }
@@ -66,21 +66,21 @@ if ($login->is_site_admin()) {
         //avoid setting them if they just switched to SMTP and didn't have the options yet
         if ($settings->get_value(kSettingEmailType) == kEmailTypeSMTP) {
             $statement = "update settings set setting_value='".$_POST['smtp_server']."' where setting_id=".kSettingSMTPServer.";";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             $statement = "update settings set setting_value=".$_POST['smtp_port']." where setting_id=".kSettingSMTPPort.";";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             $statement = "update settings set setting_value='".$_POST['smtp_user']."' where setting_id=".kSettingSMTPUser.";";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             if (strcmp($_POST['smtp_password'], "********") != 0) {
                 $statement = "update settings set setting_value='".$_POST['smtp_password']."' where setting_id=".kSettingSMTPPassword.";";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
             $statement = "update settings set setting_value=".$_POST['smtp_encryption_type']." where setting_id=".kSettingSMTPEncryptType.";";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
     $statement = "update settings set setting_value=".$_POST['email_type']." where setting_id=".kSettingEmailType.";";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     if (!$_SESSION['message']) {
         $_SESSION['message'] = "Options updated.";
     }
@@ -89,10 +89,10 @@ if ($login->is_site_admin()) {
 if ($login->is_admin()) {
     if ($settings->get_value(kSettingChatType) == kChatTypeTemplate) {
         $statement = "update settings set setting_value='".$_POST['chat_template_code']."' where setting_id=".kSettingChatTemplateCode.";";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
     $statement = "update settings set setting_value=".$_POST['chat_type']." where setting_id=".kSettingChatType.";";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     if (!$_SESSION['message']) {
         $_SESSION['message'] = "Options updated.";
     }
@@ -103,7 +103,7 @@ if ($login->is_site_admin() && !$has_email) {
     $_SESSION['message'] = "The admin account must have an e-mail address.";
 } elseif ($login->is_site_admin()) {
     $statement = "update team set ".implode(",", $col)." where team_id = '1'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
   
     // Send e-mails?
     if ($_POST['email_type'] != kEmailTypeOff && $_POST['send_emails']) {
@@ -166,17 +166,17 @@ if ($login->is_admin()) {
                 $new_wait_limit = 0;
             }
             $statement = "update team set team_autopick_wait = '$new_wait_limit' where team_autopick_wait >= '$time'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         // Somehow teams are getting set to a negative time limit
         $statement = "update team set team_autopick_wait = '0' where team_autopick_wait < '0'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
 
 
         //Set the pick time limit per round!
         $statement = "select * from pick where pick_id is not NULL order by pick_id desc limit 1";
-        $result = mysql_query($statement);
-        $result = mysql_fetch_array($result);
+        $result = mysqli_query($mysql, $statement);
+        $result = mysqli_fetch_array($result);
         $rounds = $result['pick_id'] / 32;
         for ($i = 1; $i < $rounds + 1; $i++) {
             // Set the pick time limit
@@ -197,11 +197,11 @@ if ($login->is_admin()) {
                     $new_wait_limit = 0;
                 }
                 $statement = "update team set team_autopick_wait = '$new_wait_limit' where team_autopick_wait >= '$time'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
             // Somehow teams are getting set to a negative time limit
             $statement = "update team set team_autopick_wait = '0' where team_autopick_wait < '0'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
 
         if ($_POST['max_autopick_delay'] > $time) {
@@ -227,8 +227,8 @@ if ($login->is_admin()) {
         $current_round = 0;
         $current_time_for_each_pick = 0;
         $statement = "select * from pick order by pick_id";
-        $result = mysql_query($statement);
-        while ($row_pick = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row_pick = mysqli_fetch_array($result)) {
             if ($row_pick['pick_id'] == 0) {
                 continue;
             }
@@ -249,7 +249,7 @@ if ($login->is_admin()) {
             $start_time = $expire;
 
             $statement = "update pick set slotted_draft_expire = '".date("Y-m-d H:i:s", $expire)."' where pick_id = ".$row_pick['pick_id'];
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
@@ -258,16 +258,16 @@ if ($login->is_admin()) {
         $pick_id = $_POST['pick_id'];
         $statement = "update pick set player_id = '".kDraftHalt."', pick_time = NULL
 where player_id is NULL and pick_id >= '$pick_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $statement = "update pick set player_id = NULL, pick_time = NULL
 where player_id = '".kDraftHalt."' and pick_id < '$pick_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         reset_current_pick_clock();
     } else {
         // No halt round, all player_id's need to be NULL
         $statement = "update pick set player_id = NULL, pick_time = NULL
 where player_id = '".kDraftHalt."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         reset_current_pick_clock();
     }
     // Set the league name
@@ -290,7 +290,7 @@ where player_id = '".kDraftHalt."'";
     if ($_POST['max_autopick_delay']) {
         $statement = "update team set team_autopick_wait = '".$_POST['max_autopick_delay']."' where
 team_autopick_wait > '".$_POST['max_autopick_delay']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 

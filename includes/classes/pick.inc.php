@@ -23,15 +23,17 @@ define('kDeclinePick', '-300');
 
 class pick
 {
-    public function pick($pick_id)
+    public function __construct($pick_id)
     {
-        $statement = "select * from pick where pick_id = '".mysql_real_escape_string($pick_id)."'";
-        $this->data = mysql_fetch_array(mysql_query($statement));
+        global $mysql;
+        $statement = "select * from pick where pick_id = '".mysqli_real_escape_string($mysql, $pick_id)."'";
+        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
     }
 
     public function draw_edit()
     {
         global $login;
+
         if (!$this->data['pick_id']) {
             header("Location: selections.php");
             exit;
@@ -150,6 +152,7 @@ class pick
     public function process_edit()
     {
         global $login;
+        global $mysql;
     
         // Only admin or pick owner can do this
         if (!$login->is_admin() && $login->team_id() != $this->data['team_id']) {
@@ -165,7 +168,7 @@ class pick
         error_log("Pick ".$this->data['pick_id']." switched from ".$old_team_name." to ".$new_team_name." by ".
           $login->team_name()." IP address ".$_SERVER['REMOTE_ADDR']);
     
-        $col[] = "team_id = '".mysql_real_escape_string($_POST['team_id'])."'";
+        $col[] = "team_id = '".mysqli_real_escape_string($mysql, $_POST['team_id'])."'";
     
         // If the old team is xxx, set the player to NULL
         if ($old_team->is_xxx()) {
@@ -175,8 +178,8 @@ class pick
         if ($new_team->is_xxx()) {
             $col[] = "player_id = '-1'";
         }
-        $statement = "update pick set ".implode(",", $col)." where pick_id = '".mysql_real_escape_string($this->data['pick_id'])."'";
-        mysql_query($statement);
+        $statement = "update pick set ".implode(",", $col)." where pick_id = '".mysqli_real_escape_string($mysql, $this->data['pick_id'])."'";
+        mysqli_query($mysql, $statement);
         process_pick_queue();
         $_SESSION['message'] = "Pick updated.";
         header("Location: selections.php");
@@ -186,6 +189,7 @@ class pick
     public function process_edit_slotted_draft_change_time()
     {
         global $login;
+        global $mysql;
 
         // Only admin or pick owner can do this
         if (!$login->is_admin() && $login->team_id() != $this->data['team_id']) {
@@ -196,13 +200,13 @@ class pick
         $hour = $_POST['ampm'] == "PM" ? intval($_POST["hour"]) + 12: $_POST["hour"];
         $time_s = $_POST['year']."-".str_pad($_POST["month"], 2, "0", STR_PAD_LEFT)."-".str_pad($_POST["day"], 2, "0", STR_PAD_LEFT)." ".str_pad($hour, 2, "0", STR_PAD_LEFT).":".str_pad($_POST["min"], 2, "0", STR_PAD_LEFT);
 
-        $col[] = "slotted_draft_expire = '".mysql_real_escape_string($time_s)."'";
+        $col[] = "slotted_draft_expire = '".mysqli_real_escape_string($mysql, $time_s)."'";
         if ($this->data["pick_time"]) {
-            $col[] = "pick_time = '".mysql_real_escape_string($time_s)."'";
+            $col[] = "pick_time = '".mysqli_real_escape_string($mysql, $time_s)."'";
         }
 
-        $statement = "update pick set ".implode(",", $col)." where pick_id = '".mysql_real_escape_string($this->data['pick_id'])."'";
-        mysql_query($statement);
+        $statement = "update pick set ".implode(",", $col)." where pick_id = '".mysqli_real_escape_string($mysql, $this->data['pick_id'])."'";
+        mysqli_query($mysql, $statement);
         process_pick_queue();
         $_SESSION['message'] = "Time updated.";
         header("Location: selections.php");

@@ -44,9 +44,9 @@ $col[] = "team_clock_adj = '1'";
 $col[] = "team_autopick = '0'";
 $statement = "update team set ".implode(",", $col)." where team_name like '".$_POST['team_name']."' and
 team_password is NULL";
-mysql_query($statement);
-echo mysql_error();
-if (mysql_affected_rows() > 0) {
+mysqli_query($mysql, $statement);
+echo mysqli_error($mysql);
+if (mysqli_affected_rows($mysql) > 0) {
     $_SESSION['message'] = "Account created successfully.";
     $_SESSION['fof_draft_login_team_name'] = $_POST['team_name'];
     $_SESSION['fof_draft_login_team_password'] = md5($_POST['team_password']);

@@ -83,15 +83,17 @@ class settings
 {
     public function __construct()
     {
+        global $mysql;
         $statement = "select * from settings";
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             $this->setting[$row['setting_id']] = $row['setting_value'];
         }
     }
 
     public function get_value($id)
     {
+        global $mysql;
         //ok, not so simple.  intercept the all designating kSettingPickTimeLimit checks,
         //and replace it with the timelimit for the round we are currently in!
         if ($id == kSettingPickTimeLimit) {
@@ -101,22 +103,23 @@ where pick.team_id = team.team_id
 and pick.player_id is NULL
 order by pick_id
 limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $currentround = ($row['pick_id'] - 1) / 32 + 1;
-            return $this->setting[100 + $currentround];
+            return $this->setting[100 + $currentround] ?? null;
         } else {
-            return $this->setting[$id];
+            return $this->setting[$id] ?? null;
         }
     }
 
     public function set_value($id, $value)
     {
-        $id = mysql_real_escape_string($id);
-        $value = mysql_real_escape_string($value);
+        global $mysql;
+        $id = mysqli_real_escape_string($mysql, $id);
+        $value = mysqli_real_escape_string($mysql, $value);
         $statement = "insert into settings (setting_id) values ('$id')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $statement = "update settings set setting_value = '$value' where setting_id = '$id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $this->setting[$id] = $value;
     }
 }

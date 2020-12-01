@@ -4,10 +4,10 @@ include "includes/classes.inc.php";
 $statement = "select team.team_name, team.team_id, team_owner
 from team where team.team_chat_time > '".date("Y-m-d H:i:s", strtotime("-10 seconds"))."'
 order by team_name";
-$result = mysql_query($statement);
-echo mysql_error();
+$result = mysqli_query($mysql, $statement);
+echo mysqli_error($mysql);
 $users = [];
-while ($row = mysql_fetch_array($result)) {
+while ($row = mysqli_fetch_array($result)) {
     if ($row['team_id'] != $login->team_id()) {
         if ($row['team_id'] == '1') {
             $users[] = '<a href="javascript:private_chat(\''.$row['team_id'].'\')">Admin</a>';

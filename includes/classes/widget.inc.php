@@ -22,6 +22,7 @@ class widget
     public function draw()
     {
         global $settings;
+        global $mysql;
         // Draws the widget
         $html .= '
 <div class="widget">';
@@ -49,9 +50,9 @@ pick.team_id = team.team_id and
 pick.player_id = player.player_id and
 position.position_id = player.position_id
 order by pick_id desc limit 5";
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $pick = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $pick[] = calculate_pick($row['pick_id']).'. ('.$row['team_name'].') - '.$row['player_name'].', '.$row['position_name'].', '.
     $row['player_school'];
         }
@@ -62,7 +63,7 @@ order by pick_id desc limit 5";
         // Who is on the clock
         $statement = "select * from pick,team where pick.team_id = team.team_id and
 pick.player_id is NULL order by pick_id limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['pick_id']) {
             $html .= '
   <div class="widget_item">
@@ -79,9 +80,9 @@ pick.player_id is NULL order by pick_id limit 1";
 pick.player_id is NULL and
 pick.team_id = team.team_id
 order by pick.pick_id limit 5";
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $pick = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $pick[] = calculate_pick($row['pick_id']).' - '.$row['team_name'];
         }
         $html .= implode("<br>", $pick);

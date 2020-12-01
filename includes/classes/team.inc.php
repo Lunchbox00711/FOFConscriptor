@@ -19,11 +19,12 @@
 
 class team
 {
-    public function team($team_id)
+    public function __construct($team_id)
     {
-        $team_id = mysql_real_escape_string($team_id);
+        global $mysql;
+        $team_id = mysqli_real_escape_string($mysql, $team_id);
         $statement = "select * from team where team_id = '$team_id'";
-        $this->data = mysql_fetch_array(mysql_query($statement));
+        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
     }
 
     public function team_name()
@@ -53,9 +54,10 @@ class team
 
     public function option_list()
     {
+        global $mysql;
         $statement = "select * from team where team_id != '".kAdminUser."' order by team_name";
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             if ($row['team_id'] == $this->data['team_id']) {
                 $selected = ' selected';
             } else {
@@ -78,12 +80,13 @@ class team
 
     public function set_has_password()
     {
+        global $mysql;
         // If we don't have a password, make a random one
         if (!$this->data['team_password']) {
             $password = md5(uniqid(rand()));
             $statement = "update team set team_password = '$password', team_clock_adj = '0'
 where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
@@ -92,12 +95,13 @@ where team_id = '".$this->data['team_id']."'";
         if ($this->data['team_password']) {
             $statement = "update team set team_password = NULL, team_email = NULL, team_clock_adj = '0', pick_method_id = '1'
  where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_autopick($is_on)
     {
+        global $mysql;
         if ($is_on) {
             $value = '1';
         } else {
@@ -105,19 +109,21 @@ where team_id = '".$this->data['team_id']."'";
         }
         if ($value != $this->data['team_autopick']) {
             $statement = "update team set team_autopick = '$value' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_autopick_method($value)
     {
+        global $mysql;
         if ($value != $this->data['pick_method_id']) {
             $statement = "update team set pick_method_id = '$value' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
     public function set_draft_admin($is_on)
     {
+        global $mysql;
         if ($is_on) {
             $value = '1';
         } else {
@@ -125,48 +131,53 @@ where team_id = '".$this->data['team_id']."'";
         }
         if ($value != $this->data['draft_admin']) {
             $statement = "update team set draft_admin = '$value' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_clock_adj($adj)
     {
+        global $mysql;
         $adj = $adj / 100;
         if ($adj != $this->data['team_clock_adj']) {
             $statement = "update team set team_clock_adj = '$adj' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_team_email($adj)
     {
+        global $mysql;
         if ($adj != $this->data['team_email']) {
             $statement = "update team set team_email = '$adj' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_team_owner($adj)
     {
+        global $mysql;
         if ($adj != $this->data['team_owner']) {
             $statement = "update team set team_owner = '$adj' where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function set_team_user_link($adj)
     {
+        global $mysql;
         if ($adj != $this->data['team_user_link']) {
             if (strlen($adj) <= 3) {
                 $statement = "update team set team_user_link = NULL where team_id = '".$this->data['team_id']."'";
             } else {
                 $statement = "update team set team_user_link = '$adj' where team_id = '".$this->data['team_id']."'";
             }
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
     public function set_multipos($is_on)
     {
+        global $mysql;
         // if $is_on is true, we will allow this team to take selections of the same position
         // If $is_on is false, when a position is selected, that position is zeroed in their priority list.
         if ($is_on) {
@@ -175,7 +186,7 @@ where team_id = '".$this->data['team_id']."'";
             $value = '0';
         }
         $statement = "update team set team_multipos = '$value' where team_id = '".$this->data['team_id']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 
     public function next_player($time = 0)
@@ -218,6 +229,7 @@ where team_id = '".$this->data['team_id']."'";
     public function pick_priority()
     {
         global $settings;
+        global $mysql;
         if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $statement = "select player_id from selection where team_id = '".$this->data['team_id']."' and
 selection_priority != '0'
@@ -225,7 +237,7 @@ order by selection_priority limit 1";
         } else {
             //have to make sure the player at the top of the list is suitable and amenable first!
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -247,10 +259,10 @@ order by selection_priority limit 1";
             $statement = "select player_id from selection where team_id = '".$this->data['team_id']."' and
 selection_priority != '0'
 order by selection_priority";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
                 $statement = "select * from staff where staff_id = ".$row["player_id"];
-                $test = mysql_fetch_array(mysql_query($statement));
+                $test = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 if ($test["staff_amenable"] == 'Y' && $test[$suitable] > 0) {
                     return $test["staff_id"];
                 }
@@ -258,18 +270,19 @@ order by selection_priority";
             //nobody in the list is amenable!
             return null;
         }
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         return $row['player_id'];
     }
 
     public function pick_bpa()
     {
         global $settings;
+        global $mysql;
         if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             //in a staff situation we know the position based on the round and will just pick based on
             //most suitable
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -288,12 +301,12 @@ order by selection_priority";
                 $order = "staff_suitable_sc";
             }
             "select staff_id from staff where staff_amenable='Y' and ".$order.">0 order by ".$order." limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             return $row["staff_id"];
         }
         // Looks in our bpa queue and sees if we have a player to pick
         $statement = "select * from bpa where team_id = '".$this->data['team_id']."' order by bpa_priority limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $position_id = $row['position_id'];
         $bpa_id = $row['bpa_id'];
         $desc = '';
@@ -307,7 +320,7 @@ order by selection_priority";
                 // Using the list of attributes
                 // See if we have our own extractor upload
                 $statement = "select * from team_player_to_attribute where team_id = '".$this->data['team_id']."'";
-                if (mysql_num_rows(mysql_query($statement))) {
+                if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
                     $tables[] = "team_player_to_attribute";
                     $wheres[] = "team_player_to_attribute.player_id = player.player_id";
                     $wheres[] = "team_player_to_attribute.attribute_id = '".$row['attribute_id']."'";
@@ -337,12 +350,12 @@ order by selection_priority";
 ".implode(" ", $joins)."
 where ".implode(" and ", $wheres)."
 ".$order." limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
-            if (mysql_error()) {
-                echo "<P>$statement<p>".mysql_error();
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            if (mysqli_error($mysql)) {
+                echo "<P>$statement<p>".mysqli_error($mysql);
             }
             $statement = "delete from bpa where bpa_id = '$bpa_id'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             return $row['player_id'];
         }
     }
@@ -352,6 +365,7 @@ where ".implode(" and ", $wheres)."
         // Checks to see if there is enough time before the close of the day today for this pick, if not, set the start time
         // appropriately befor the start of tomorrow
         global $settings;
+        global $mysql;
         // First see if we have a 24-hour clock
         if (!$settings->get_value(kSettingEndTime)) {
             return date("Y-m-d H:i:s", $time);
@@ -384,7 +398,7 @@ where ".implode(" and ", $wheres)."
         case "slotted_draft":
             // first figure out wich round is the team pick
             $statement = "select * from pick where player_id is NULL order by pick_id limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             if ($row['team_id'] == $this->data['team_id']) {
                 $return = $row['slotted_draft_expire'];
             } else {
@@ -401,6 +415,7 @@ where ".implode(" and ", $wheres)."
     {
         // Reduce this team's pick limit by the percentage set for when they are autopicked
         global $settings;
+        global $mysql;
         if ($this->data['team_clock_adj'] > 0) {
             $autopick_reduction = (100 - $settings->get_value(kSettingAutopickReduction)) / 100;
             $new_autopick = $this->data['team_clock_adj'] * $autopick_reduction;
@@ -413,30 +428,31 @@ where ".implode(" and ", $wheres)."
 team_clock_adj = '$new_autopick',
 team_autopick_wait = '$wait'
 where team_id = '".$this->data['team_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
 
     public function force_pick()
     {
         global $settings;
+        global $mysql;
         $player_id = null;
 
         //short circuit the player force pick if we're running a staff draft
         if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             //first see if they can decline it because they don't need to pick
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id) / 32) + 1;
             if ($tid = $row["team_id"]) {
                 //we found the team
                 $statement = "select in_game_id from team where team_id=".$tid.";";
-                $row = mysql_fetch_array(mysql_query($statement));
+                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
                 $tid = $row["in_game_id"];
                 $statement = "select * from staff where fired=0 and drafted=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
-                $result = mysql_query($statement);
-                $result = mysql_fetch_array($result);
+                $result = mysqli_query($mysql, $statement);
+                $result = mysqli_fetch_array($result);
                 if ($result["staff_name"] != '') {
                     //they DO have a staff member in this position and can decline it.
                     $player_id = kDeclinePick;
@@ -452,8 +468,8 @@ where team_id = '".$this->data['team_id']."'";
                     } elseif ($round == 5) {
                         $statement = "select staff_id from staff where staff_amenable='Y' and drafted=0 order by staff_suitable_sc desc limit 1";
                     }
-                    $row = mysql_query($statement);
-                    $result = mysql_fetch_array($row);
+                    $row = mysqli_query($mysql, $statement);
+                    $result = mysqli_fetch_array($row);
                     $player_id = $result["staff_id"];
                 }
             }
@@ -481,7 +497,7 @@ where team_id = '".$this->data['team_id']."'";
 
         // If we didn't get a player that way, we can check to see if we have the data for a scout pick
         $statement = "select * from mock_draft";
-        if (mysql_num_rows(mysql_query($statement))) {
+        if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
             return $this->scout_pick();
         }
         // If we are here, we can't do a scout pick, so we'll use the original BPA at a position we haven't picked yet
@@ -501,7 +517,7 @@ player.player_id = pick.player_id) selected_pos on selected_pos.position_id = pl
         $statement = "select ".implode(",", $col)." from (".implode(",", $tables).")
 ".implode(" ", $joins)." where ".implode(" and ", $wheres)."
 order by player.player_adj_score desc, player.player_current desc, player.player_future desc, player.player_id limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['player_id']) {
             return $row['player_id'];
         } else {
@@ -510,13 +526,14 @@ order by player.player_adj_score desc, player.player_current desc, player.player
             $statement = "select player.player_id from player left join pick on pick.player_id = player.player_id
 where pick.player_id is NULL
 order by player.player_adj_score desc, player.player_future desc, player.player_id limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             return $row['player_id'];
         }
     }
 
     public function mock_pick($mock_pick_id)
     {
+        global $mysql;
         // Find the highest need compared to the best score
         $tables[] = "team_need";
         $col[] = "team_need.team_need_id";
@@ -553,34 +570,34 @@ order by pick_order desc
 limit 2
 ";
 
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         // Get two rows to drive the commentary
-        $row = mysql_fetch_array($result);
-        $row2 = mysql_fetch_array($result);
+        $row = mysqli_fetch_array($result);
+        $row2 = mysqli_fetch_array($result);
         if ($row['player_id']) {
             // Generate the commentary
             $commentary = addslashes($this->mock_commentary($row, $row2));
             // Clear that we've picked this need
             $statement = "update team_need set mock_pick_id = '$mock_pick_id' where
 team_need_id = '".$row['team_need_id']."'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
             // Insert it into the mock draft
             $statement = "insert into mock_draft (pick_id, team_id, player_id, mock_draft_commentary) values
 ('".$mock_pick_id."', '".$this->data['team_id']."', '".$row['player_id']."', '$commentary')";
-            mysql_query($statement);
-            echo mysql_error();
+            mysqli_query($mysql, $statement);
+            echo mysqli_error($mysql);
             return;
         }
         // If we are still here, we are out of needs, so just returt the BPA that has not yet been selected
         $statement = "select player.player_id from player left join mock_draft on mock_draft.player_id = player.player_id
 where mock_draft.player_id is NULL
 order by player.player_adj_score desc, player.player_id limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $commentary = $this->data['team_name']." has already picked at all positions, and this is the best player
 still on the board.";
         $statement = "insert into mock_draft (pick_id, team_id, player_id, mock_draft_commentary) values
 ('".$mock_pick_id."', '".$this->data['team_id']."', '".$row['player_id']."', '$commentary')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         return;
     }
 
@@ -726,11 +743,12 @@ there really isn't a better choice at this point.";
     public function scout_pick()
     {
         global $settings;
+        global $mysql;
         if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             //in a staff situation we know the position based on the round and will just pick based on
             //most suitable
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -749,7 +767,7 @@ there really isn't a better choice at this point.";
                 $order = "staff_suitable_sc";
             }
             "select staff_id from staff where staff_amenable='Y' order by ".$order." limit 1";
-            $row = mysql_fetch_array(mysql_query($statement));
+            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
             return $row["staff_id"];
         }
         // Find the highest need compared to the best score
@@ -787,7 +805,7 @@ having ".implode(" and ", $having)."
 order by pick_order desc
 limit 1
 ";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['player_id']) {
             return $row['player_id'];
         }
@@ -799,7 +817,7 @@ limit 1
         $statement = "select player.player_id from player left join pick on pick.player_id = player.player_id
 where pick.player_id is NULL
 order by player.player_adj_score desc, player.player_id limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
 
         return $row['player_id'];
     }

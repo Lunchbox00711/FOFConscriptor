@@ -37,7 +37,7 @@ if ($login->is_admin()) {
 where ".implode(" and ", $wheres)."
 order by pick.pick_id limit 1";
 
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     $team = new team($row['team_id']);
   
     // This function sets the selected pick's player_id to kSkipPick to allow their pick to be skipped
@@ -48,11 +48,11 @@ order by pick.pick_id limit 1";
         make_pick($_GET['pick_id'], $player_id, false);
     } elseif ($settings->get_value(kSettingStaffDraftOn) == 1) {
         $statement = "update pick set player_id = '".kDelinePick."' where pick_id = '".$_GET['pick_id']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $player_id = true;
     } else {
         $statement = "update pick set player_id = '".kSkipPick."' where pick_id = '".$_GET['pick_id']."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $player_id = true;
     }
     if ($player_id) {

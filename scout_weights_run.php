@@ -24,7 +24,7 @@ if ($login->is_admin()) {
     if (is_array($_POST['position_scout_weight'])) {
         foreach ($_POST['position_scout_weight'] as $key => $value) {
             $statement = "update position set position_scout_weight = '$value' where position_id = '$key'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     }
     $_SESSION['message'] = "Scout weights updated.";

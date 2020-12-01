@@ -23,7 +23,7 @@ if (is_array($_POST['bpa_priority'])) {
     foreach ($_POST['bpa_priority'] as $bpa_id => $bpa_priority) {
         $statement = "update bpa set bpa_priority = '$bpa_priority'
 where team_id = '".$_SESSION["selected_team_id"]."' and bpa_id = '$bpa_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 
@@ -31,7 +31,7 @@ where team_id = '".$_SESSION["selected_team_id"]."' and bpa_id = '$bpa_id'";
 if (is_array($_POST['delete'])) {
     foreach ($_POST['delete'] as $bpa_id) {
         $statement = "delete from bpa where team_id = '".$_SESSION["selected_team_id"]."' and bpa_id = '$bpa_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 

@@ -22,21 +22,30 @@ class table_list
     // This class will handle the drawing of all lists.  Call the initialization functions to set
     // things like the headers, date format, etc.  Then call the draw_list function with the sql statement
     // to draw the list.  It will keep track of its own page number, sort, etc.
-    public function table_list($multipage = true, $interface_append = '')
+
+    public $default_sort = null;
+    public $show_map = null;
+    public $add_order_by = null;
+    public $form = null;
+    public $extra_text = null;
+    public $buttons = null;
+    public $has_map = false;
+
+    public function __construct($multipage = true, $interface_append = '')
     {
         $this->header = [];
         $this->multipage = $multipage;
         $this->interface_id = md5($_SERVER['SCRIPT_NAME'].$interface_append);
 
         // Retrieve the order_by value
-        $this->order_by = $_GET['order_by'];
+        $this->order_by = $_GET['order_by'] ?? null;
         if (!$this->order_by) {
             $this->order_by = $_SESSION['list_order_by'][$this->interface_id];
         }
         $_SESSION['list_order_by'][$this->interface_id] = $this->order_by;
 
         // Retrieve the page page value, and set to 0 if not set
-        $this->page = $_POST['page'];
+        $this->page = $_POST['page'] ?? null;
         if (!$this->page) {
             $this->page = $_SESSION['current_page'][$this->interface_id];
         }
@@ -46,7 +55,7 @@ class table_list
         $_SESSION['current_page'][$this->interface_id] = $this->page;
 
         // Retrieve the records per page, set it to 32 if not set
-        $this->records_per_page = $_POST['records_per_page'];
+        $this->records_per_page = $_POST['records_per_page'] ?? null;
         if (!$this->records_per_page) {
             $this->records_per_page = $_COOKIE['records_per_page_'.$this->interface_id];
         }
@@ -191,6 +200,8 @@ class table_list
 
     public function draw_list($statement)
     {
+        global $mysql;
+        $html = '';
         // Generate the queries for the heading links
         $queries = [];
         if (is_array($this->queries)) {
@@ -218,15 +229,15 @@ class table_list
             }
             $statement .= implode(",", $this->add_order_by);
         }
-        $result = mysql_query($statement);
-        if (mysql_error()) {
+        $result = mysqli_query($mysql, $statement);
+        if (mysqli_error($mysql)) {
             $html = "<p>There was an error in the list statement:";
             $html .= "<p>".htmlentities($statement);
-            $html .= "<p>".htmlentities(mysql_error());
+            $html .= "<p>".htmlentities(mysqli_error($mysql));
             return $html;
         }
         // Count the rows
-        $this->rows = mysql_num_rows($result);
+        $this->rows = mysqli_num_rows($result);
         $this->pages = ceil($this->rows / $this->records_per_page);
         if ($this->page > $this->pages - 1) {
             $this->page = max($this->pages, 1);
@@ -240,11 +251,6 @@ class table_list
         $_SESSION['list_statement'] = $statement;
         $_SESSION['list_header'] = $this->header;
 
-        /*
-        // Give the mailmerge link
-        $html .= '
-<p class="no_print" align="center"><a href="mailmerge.php">Save as Mail Merge</a></p>';
-        */
         // Draw the pages
         if ($this->multipage) {
             $html .= $this->draw_page_numbers();
@@ -301,13 +307,15 @@ class table_list
             $last = $first + $this->records_per_page;
         } else {
             $first = 0;
-            $last = mysql_num_rows($result);
+            $last = mysqli_num_rows($result);
         }
-        if ($last > mysql_num_rows($result)) {
-            $last = mysql_num_rows($result);
+        if ($last > mysqli_num_rows($result)) {
+            $last = mysqli_num_rows($result);
         }
         $current = $first;
         while ($current < $last) {
+            mysqli_data_seek($result, $current);
+            $line = mysqli_fetch_object($result);
             if ($class == "light") {
                 $class = "dark";
             } else {
@@ -317,7 +325,7 @@ class table_list
     <tr>';
             foreach ($this->header as $header => $values) {
                 if ($this->style) {
-                    $style = ' style="'.mysql_result($result, $current, $this->style).'"';
+                    $style = ' style="'.($line->{$this->style} ?? '').'"';
                 } else {
                     $style = '';
                 }
@@ -376,24 +384,25 @@ class table_list
 
     public function get_data($result, $values, $record, $header)
     {
+        $line = mysqli_data_seek($result, $record);
         if ($this->link) {
             if (preg_match('/%id%/', $this->link)) {
-                $link = str_replace("%id%", mysql_result($result, $record, $this->id_col), $this->link);
+                $link = str_replace("%id%", ($line->{$this->id_col} ?? ''), $this->link);
             } else {
-                $link = $this->link . mysql_result($result, $record, $this->id_col);
+                $link = $this->link . ($line->{$this->id_col} ?? '');
             }
         } else {
             $link = '';
         }
         if ($this->cell_style[$header]) {
-            $style = mysql_result($result, $record, $this->cell_style[$header]);
+            $style = ($line->{$this->cell_style[$header]} ?? '');
         }
         $html .= '
       <span style="'.$style.'">';
         if ($link && $values['link']) {
             if (!$style) {
                 if ($this->style) {
-                    $style = ' style="'.mysql_result($result, $record, $this->style).'"';
+                    $style = ' style="'.($line->{$this->style} ?? '').'"';
                 } else {
                     $style = '';
                 }
@@ -401,7 +410,7 @@ class table_list
             $html .= '
       <a href="'.$link.'"'.$style.'>';
         }
-        $data = mysql_result($result, $record, $header);
+        $data = $line->{$header} ?? '';
         if ($values['exec']) {
             $command = $values['exec'];
             $data = $command($data);
@@ -422,7 +431,7 @@ class table_list
             $data = str_replace("%data%", $data, $values['format']);
         }
         if ($this->id_col) {
-            $data = str_replace("%id%", mysql_result($result, $record, $this->id_col), $data);
+            $data = str_replace("%id%", ($line->{$this->id_col} ?? ''), $data);
         }
         if (!$data) {
             $data = '&nbsp;';
@@ -492,15 +501,16 @@ class table_list
 
     public function draw_map($statement, $queries)
     {
+        global $mysql;
         // Draws the results in a map
         $html = '
 <p align="center"><a href=./?'.$queries.'&map=-1">&raquo; List View</a></p>';
         $html .= file_get_contents("includes/html/map.html");
         $html = str_replace("%google_key%", kGoogleKey, $html);
 
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $i = 0;
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             if ($row[$this->latitude] != 0) {
                 // We have a valid latitude and longitude
                 $bubble = '
@@ -528,6 +538,7 @@ map.addOverlay(createMarker(point, \''.$bubble.'\', greenIcon));';
 
     public function export_mailmerge()
     {
+        global $mysql;
         // Takes the stored statement and exports a CSV with the headers in the first column
         $this->header = $_SESSION['list_header'];
         $statement = $_SESSION['list_statement'];
@@ -540,9 +551,9 @@ map.addOverlay(createMarker(point, \''.$bubble.'\', greenIcon));';
         }
         $final .= implode(",", $data)."\r\n";
 
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $current = 0;
-        $last = mysql_num_rows($result);
+        $last = mysqli_num_rows($result);
         while ($current < $last) {
             $data = [];
             foreach ($this->header as $header => $values) {

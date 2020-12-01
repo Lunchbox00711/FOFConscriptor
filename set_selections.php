@@ -29,14 +29,14 @@ foreach ($_POST['player_id_selection'] as $player_id) {
         $count++;
         // Check to make sure this player is not picked
         $statement = "select * from pick where player_id = '$player_id'";
-        if (!mysql_num_rows(mysql_query($statement))) {
+        if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
             $statement = "insert into selection set team_id = '$team_id', player_id = '$player_id',
 selection_priority = '$count'";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     } else {
         $statement = "delete from selection where team_id = '$team_id' and player_id = '$player_id'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 $_SESSION['message'] = "Selections saved.";

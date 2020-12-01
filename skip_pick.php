@@ -23,7 +23,7 @@ if ($login->is_admin()) {
     // This function sets the selected pick's player_id to kSkipPick to allow their pick to be skipped
     $statement = "update pick set player_id = '".kSkipPick."' where pick_id = '".$_GET['pick_id']."'
 and player_id is NULL";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     // Update the draft clock
     reset_current_pick_clock();
 }

@@ -28,16 +28,16 @@ if (!$login->is_admin()) {
 
 // Make sure we have adjusted grades for the players
 $statement = "select * from player where player_adj_score is not NULL";
-if (!mysql_num_rows(mysql_query($statement))) {
+if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
     $statement = "select * from player where player_score is not NULL";
-    if (!mysql_num_rows(mysql_query($statement))) {
+    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
         $_SESSION['message'] = "No adjusted scores have been uploaded for this draft, mock draft is not available.";
         header("Location: ./");
         exit;
     } else {
         //use the non-adjusted scores
         $statement = "update player set player_adj_score=player_score where player_score is not NULL";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 
@@ -79,10 +79,10 @@ Please verify that you are uploading the correct file.";
         if ($columns[kpr_team] != 99) {
             $position_id = $positions[trim($columns[kpr_position])];
             $statement = "select team_id from team where in_game_id=".$columns[kpr_team];
-            $result = mysql_fetch_array(mysql_query($statement));
+            $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
         
             $statement = "insert into roster (player_id,in_game_team_id,team_id,position_id) values (".$columns[kpr_player_id].",".$columns[kpr_team].",".$result["team_id"].",".$position_id.")";
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
         //still missing the ratings which are in the other file.
     }
@@ -114,9 +114,9 @@ Please verify that you are uploading the correct file.";
         }
         // Build the roster table
         $statement = "update roster set current=".$columns[kprating_current].",future=".$columns[kprating_future]." where player_id=".$columns[kprating_player_id];
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         $statement = "select * from roster where player_id=".$columns[kprating_player_id];
-        if ($result = mysql_fetch_array(mysql_query($statement))) {
+        if ($result = mysqli_fetch_array(mysqli_query($mysql, $statement))) {
             //now that the ratings are there, and while we are in a player loop already...
             // Store the best player at each position for each team.
             $position_id = $result["position_id"];
@@ -135,12 +135,12 @@ Please verify that you are uploading the correct file.";
 // Ok, $data contains all the data we need to fill the team_need table.
 // Truncate the team_need table
 $statement = "truncate table team_need";
-mysql_query($statement);
+mysqli_query($mysql, $statement);
 // First let's build an array of all the position_id's
 $statement = "select * from position";
-$result = mysql_query($statement);
+$result = mysqli_query($mysql, $statement);
 $position_list = [];
-while ($row = mysql_fetch_array($result)) {
+while ($row = mysqli_fetch_array($result)) {
     $position_list[] = $row['position_id'];
 }
 foreach ($data as $team_id => $team_data) {
@@ -149,16 +149,16 @@ foreach ($data as $team_id => $team_data) {
         $need = 100 - $team_data[$position_id];
         $statement = "insert into team_need (team_id, position_id, team_need_order)
 values ('$team_id', '$position_id', '$need')";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
     }
 }
 
 // Now we go through all the picks and do the mock draft
 $statement = "truncate table mock_draft";
-mysql_query($statement);
+mysqli_query($mysql, $statement);
 $statement = "select * from pick where team_id > 0 order by pick_id";
-$result = mysql_query($statement);
-while ($row = mysql_fetch_array($result)) {
+$result = mysqli_query($mysql, $statement);
+while ($row = mysqli_fetch_array($result)) {
     $team = new team($row['team_id']);
     $team->mock_pick($row['pick_id']);
 }

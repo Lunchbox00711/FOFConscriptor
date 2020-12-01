@@ -26,15 +26,17 @@ class pick_method
 {
     public function __construct($pick_method_id)
     {
-        $statement = "select * from pick_method where pick_method_id = '".mysql_real_escape_string($pick_method_id)."'";
-        $this->data = mysql_fetch_array(mysql_query($statement));
+        global $mysql;
+        $statement = "select * from pick_method where pick_method_id = '".mysqli_real_escape_string($mysql, $pick_method_id)."'";
+        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
     }
 
     public function option_list()
     {
+        global $mysql;
         $statement = "select * from pick_method order by pick_method_id";
-        $result = mysql_query($statement);
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        while ($row = mysqli_fetch_array($result)) {
             if ($row['pick_method_id'] == $this->data['pick_method_id']) {
                 $selected = " selected";
             } else {

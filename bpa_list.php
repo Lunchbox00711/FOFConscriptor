@@ -23,24 +23,24 @@ $statement = "select * from position_to_attribute, attribute where
 position_to_attribute.position_id = '$position_id' and
 position_to_attribute.attribute_id = attribute.attribute_id
 order by position_to_attribute_order";
-$result = mysql_query($statement);
+$result = mysqli_query($mysql, $statement);
 $html .= '
 <select name="attribute_id">';
 // Do we have adjusted grade?
 $statement = "select * from player where player_adj_score is not null";
-if (mysql_num_rows(mysql_query($statement))) {
+if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
     $html .= '
 <option value="-1">Adjusted Grade</option>';
 }
-echo mysql_error();
+echo mysqli_error($mysql);
 // Do we have ratings?
 $statement = "select * from player where player.player_future is not NULL";
-if (mysql_num_rows(mysql_query($statement))) {
+if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
     $html .= '
 <option value="-2">Future Rating</option>
 <option value="-3">Current Rating</option>';
 }
-while ($row = mysql_fetch_array($result)) {
+while ($row = mysqli_fetch_array($result)) {
     $html .= '
   <option value="'.$row['attribute_id'].'">'.$row['attribute_name'].'</option>';
 }

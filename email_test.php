@@ -21,7 +21,7 @@ if ($settings->get_value(kSettingEmailType) == kEmailTypeSendmail) {
 }
 
 $statement = "select * from team where team_id = '".kAdminUser."'";
-$row = mysql_fetch_array(mysql_query($statement));
+$row = mysqli_fetch_array(mysqli_query($mysql, $statement));
 $fromaddress = $row['team_email'];
 // Create the Mailer using your created Transport
 $mailer = Swift_Mailer::newInstance($transport);

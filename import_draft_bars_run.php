@@ -35,9 +35,9 @@ if ($login->is_admin()) {
 
 // Ok, all is well, first let's clear out the existing draft data
   $statement = "delete from team_player where team_id = '".$login->team_id()."'";
-  mysql_query($statement);
+  mysqli_query($mysql, $statement);
   $statement = "delete from team_player_to_attribute where team_id = '".$login->team_id()."'";
-  mysql_query($statement);
+  mysqli_query($mysql, $statement);
 
 // Now for the import
 include "includes/fof7_export_columns.inc.php";
@@ -73,7 +73,7 @@ Please verify that you are uploading the correct file and that you have the curr
 
         //determine the position this player plays and the player_id
         $statement = "select player_id,player_in_game_id,position_id from player where player_in_game_id=".$col["player_in_game_id"] ;
-        $result = mysql_fetch_array(mysql_query($statement));
+        $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($result['player_id']) {
             $upload_count++;
         }
@@ -82,17 +82,17 @@ Please verify that you are uploading the correct file and that you have the curr
 attribute.attribute_id = position_to_attribute.attribute_id and attribute.attribute_id= fof7_rookie_attribute_map.attribute_id 
 and position_to_attribute.position_id = '".$result['position_id']."'
 order by position_to_attribute_order";
-        $result2 = mysql_query($statement);
+        $result2 = mysqli_query($mysql, $statement);
         $i = 0;
         $attributes = [];
-        while ($row = mysql_fetch_array($result2)) {
+        while ($row = mysqli_fetch_array($result2)) {
             //if we don't have this attribute exported (currently only Formations?) we need to add it anyway!
     if ($row["fof7_rookie_attribute_column"] == -1) {//check if this is the formations field
              $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '0', '0');";
     } else {
         $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '".trim($columns[$row["fof7_attribute_column"]])."', '".trim($columns[$row["fof7_attribute_column"] + 58])."');";
     }
-            mysql_query($statement);
+            mysqli_query($mysql, $statement);
         }
     } else {
         $header = false;

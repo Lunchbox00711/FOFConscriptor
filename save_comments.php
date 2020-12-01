@@ -28,15 +28,15 @@ if (!get_magic_quotes_gpc()) {
 }
 // Do we have a comment already?
 $statement = "select * from player_comments where player_id = '$player_id' and team_id = '$team_id'";
-if (!mysql_num_rows(mysql_query($statement))) {
+if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
     $statement = "insert into player_comments (player_id, team_id, player_comments_text)
 values
 ('$player_id', '$team_id', '$comments')";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 } else {
     $statement = "update player_comments set player_comments_text = '$comments' where
 player_id = '$player_id' and team_id = '$team_id'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
 }
 
 echo stripslashes($comments);

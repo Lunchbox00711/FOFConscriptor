@@ -28,29 +28,29 @@ if ($login->is_admin() && $_POST['pick_id']) {
     }
 
     $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres)." order by pick_id";
-    $result = mysql_query($statement);
-    if (mysql_num_rows($result)) {
+    $result = mysqli_query($mysql, $statement);
+    if (mysqli_num_rows($result)) {
         // Compose the e-mail and send to all registered teams
         $subject = $settings->get_value(kSettingLeagueName)." Draft Rollback Notification";
         $message = "The draft has been rolled back to pick ".calculate_pick($_POST['pick_id']).".
 The following players/staff are back on the board.  If you had them in your queue you will need to re-add them.";
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             if (!$staff) {
                 $message .= '
 
 '.$row['player_name'].' ('.$row['position_name'].')';
             } else {
                 $statement = "update staff set drafted = 0 where staff_name = '".$row['staff_name']."'";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
                 //now make sure we check the team that made this pick didn't have a staff member that was
                 //fired as a result of the pick we just un-did.
                 $round = floor(($_POST['pick_id'] - 1) / 32) + 1;
                 $statement = "select * from staff,team where staff.staff_role_id=".$round." and team.team_id=".$row['team_id']." and staff.staff_curr_team_id=team.in_game_id";
-                $result2 = mysql_query($statement);
-                if ($row2 = mysql_fetch_array($result2)) {
+                $result2 = mysqli_query($mysql, $statement);
+                if ($row2 = mysqli_fetch_array($result2)) {
                     //yep they fired a guy.  Unfire him.
                     $statement = "update staff set fired = 0 where staff_name = '".$row2['staff_name']."'";
-                    mysql_query($statement);
+                    mysqli_query($mysql, $statement);
                 }
                 $message .= '
 
@@ -63,13 +63,13 @@ The following players/staff are back on the board.  If you had them in your queu
 
         // send this message to each team
         $statement = "select * from team where team_id = '".kAdminUser."'";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $from = "FOF Conscriptor Admin <".$row['team_email'].">";
         $fromaddress = $row['team_email'];
         if ($settings->get_value(kSettingSendMails)) {
             $statement = "select * from team where team_email is not NULL";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
                 require_once './includes/lib/swift_required.php';
                 if ($settings->get_value(kSettingEmailType) == kEmailTypeMail) {
                     //mail($row['team_email'], $subject, $message, "From: $from");
@@ -157,12 +157,12 @@ The following players/staff are back on the board.  If you had them in your queu
     $statement = "update pick set player_id = '".kDraftHalt."',
 pick_expired = NULL
 where pick_id >= '".$_POST['pick_id']."'";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     $_SESSION['message'] = "Draft rollback completed.";
 
     // Re-set the team_teen table
     $statement = "update team_need set pick_id = NULL";
-    mysql_query($statement);
+    mysqli_query($mysql, $statement);
     fill_team_need();
 }
 

@@ -34,15 +34,16 @@ class login
     public function __construct()
     {
         global $settings;
+        global $mysql;
         // Check for stored login info
-        if ($_COOKIE['fof_draft_login_team_name']) {
+        if ($_COOKIE['fof_draft_login_team_name'] ?? null) {
             $_SESSION['fof_draft_login_team_name'] = $_COOKIE['fof_draft_login_team_name'];
             $_SESSION['fof_draft_login_team_password'] = $_COOKIE['fof_draft_login_team_password'];
         }
-        $statement = "select * from team where team_name like '".mysql_real_escape_string($_SESSION['fof_draft_login_team_name'])."' and
-team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_password'])."'";
-        $this->data = mysql_fetch_array(mysql_query($statement));
-        if (!$this->data['team_id'] && kRedirect) {
+        $statement = "select * from team where team_name like '".mysqli_real_escape_string($mysql, $_SESSION['fof_draft_login_team_name'] ?? '')."' and
+team_password = '".mysqli_real_escape_string($mysql, $_SESSION['fof_draft_login_team_password'] ?? '')."'";
+        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        if (!$this->data['team_id'] && defined('kRedirect')) {
             if ($_SESSION['fof_draft_login_team_name']) {
                 $_SESSION['message'] = "That login is not valid.";
                 unset($_SESSION['fof_draft_login_team_name']);
@@ -55,10 +56,10 @@ team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_pass
         }
         // Update the chat time stamp for this user
         $statement = "update team set team_chat_time = '".date("Y-m-d H:i:s")."' where team_id = '".$this->team_id()."'";
-        mysql_query($statement);
+        mysqli_query($mysql, $statement);
         if ($settings->get_value(kSettingChatType) == 1) {
             $statement = "select * from last_update";
-            $array = mysql_fetch_array(mysql_query($statement));
+            $array = mysqli_fetch_array(mysqli_query($mysql, $statement));
             $this->data['latest_message'] = $array['latest_message'];
             if (!$_SESSION['latest_message']) {
                 $_SESSION['latest_message'] = $array['latest_message'];
@@ -92,8 +93,9 @@ team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_pass
     }
     public function set_latest_message()
     {
+        global $mysql;
         $statement = "select * from last_update";
-        $array = mysql_fetch_array(mysql_query($statement));
+        $array = mysqli_fetch_array(mysqli_query($mysql, $statement));
         $this->data['latest_message'] = $array['latest_message'];
     }
     public function is_admin()
@@ -368,6 +370,7 @@ each team has their own ability to set this for themselves)</i></p>';
 
     public function draw_draft_options()
     {
+        global $mysql;
         if (!$this->is_admin()) {
             header("Location: selections.php");
             exit;
@@ -393,7 +396,7 @@ each team has their own ability to set this for themselves)</i></p>';
         if ($this->is_admin()) {
             // First check to see if the draft is stopped
             $statement = "select * from pick where player_id is NULL";
-            if (mysql_num_rows(mysql_query($statement))) {
+            if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
                 $stopped = false;
                 $time_access = " disabled";
                 $time_access_value = "0";
@@ -644,8 +647,8 @@ each team has their own ability to set this for themselves)</i></p>';
 their autopick off.  This can be up to the pick time limit or 30 minutes if no pick time limit is set.</td>
     </tr>';
             $statement = "select * from pick where pick_id is not NULL order by pick_id desc limit 1";
-            $result = mysql_query($statement);
-            $result = mysql_fetch_array($result);
+            $result = mysqli_query($mysql, $statement);
+            $result = mysqli_fetch_array($result);
             $rounds = $result['pick_id'] / 32;
 
             $draft_type = $settings->get_value(kSettingDraftType);
@@ -836,8 +839,8 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
           <option value="">Use Server\'s Time Zone</option>';
             $statement = "select * from time_zone where time_zone_title is not null
 order by time_zone_id";
-            $result = mysql_query($statement);
-            while ($row = mysql_fetch_array($result)) {
+            $result = mysqli_query($mysql, $statement);
+            while ($row = mysqli_fetch_array($result)) {
                 if ($row['time_zone_id'] == $time_zone) {
                     $selected = " selected";
                 } else {
@@ -852,26 +855,6 @@ order by time_zone_id";
     </tr>
     <tr>
     ';
-            /*    $autowclockoff = $settings->get_value(kSettingAutoPickWhenClockOff);
-                  if ($autowclockoff) {
-                $autoclockon = ' selected';
-                    $autoclockoff = '';
-                  } else {
-                    $autoclockon = '';
-                $autoclockoff = ' selected';
-                  }
-                  $html.='
-                    <td align="right" class="light">Autopick when clock is off:</td>
-                    <td class="light">
-                       <select name="auto_when_clock_off">
-                         <option value="1"'.$autoclockon.'>Enabled</option>
-                         <option value="0"'.$autoclockoff.'>Disabled</option>
-                       </select>
-                    </td>
-                    <td class="light">By default, autopicks are allowed to fire even when the clock is off for the day.  Set this
-                    to disabled to prevent autopicks from firing when the draft clock is not running.</td>
-                  </tr>';
-            */
             $html .= '
       <tr>
       <td align="right" class="light">If a team goes on the clock with less than the time limit for the day:</td>
@@ -946,9 +929,9 @@ order by time_zone_id";
         <select name="pick_id">
           <option value="">Run Unimpeded</option>';
             $statement = "select * from pick where player_id is NULL or player_id = '".kDraftHalt."' order by pick_id";
-            $result = mysql_query($statement);
+            $result = mysqli_query($mysql, $statement);
             $found = false;
-            while ($row = mysql_fetch_array($result)) {
+            while ($row = mysqli_fetch_array($result)) {
                 if (!$found && $row['player_id'] == kDraftHalt) {
                     $selected = " selected";
                     $found = true;
@@ -1009,14 +992,15 @@ Stopping and restarting the draft will reset the clock for the current pick.</td
 
     public function select_column()
     {
+        global $mysql;
         $statement = "select count(*) num from team_to_column where team_id = '".$this->data['team_id']."'";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['num'] < 15) {
             if ($_GET['column_id']) {
                 $statement = "insert into team_to_column (team_id, column_id)
 values
 ('".$this->data['team_id']."', '".$_GET['column_id']."')";
-                mysql_query($statement);
+                mysqli_query($mysql, $statement);
             }
         }
         return $this->draw_column_selections();
@@ -1024,9 +1008,10 @@ values
 
     public function deselect_column()
     {
+        global $mysql;
         $statement = "delete from team_to_column where
-team_id = '".$this->data['team_id']."' and column_id = '".mysql_real_escape_string($_GET['column_id'])."'";
-        mysql_query($statement);
+team_id = '".$this->data['team_id']."' and column_id = '".mysqli_real_escape_string($mysql, $_GET['column_id'])."'";
+        mysqli_query($mysql, $statement);
         return $this->draw_column_selections();
     }
 
@@ -1058,6 +1043,7 @@ team_id = '".$this->data['team_id']."' and column_id = '".mysql_real_escape_stri
 
     public function draw_unselected_columns($staff)
     {
+        global $mysql;
         $statement = "select `column`.* from `column`
 left join team_to_column on team_to_column.team_id = '".$this->data['team_id']."'
 and team_to_column.column_id = `column`.column_id
@@ -1070,9 +1056,9 @@ and team_to_column.column_id = `column`.column_id
 where team_to_column.column_id is NULL and column_order>280
 order by `column`.column_order";
         }
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $col = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $col[] = '<a href="javascript:select_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }
         return implode("<br>", $col);
@@ -1092,9 +1078,9 @@ and team_to_column.column_id = `column`.column_id
 where team_to_column.column_id is not NULL and column_order>280
 order by `column`.column_order";
         }
-        $result = mysql_query($statement);
+        $result = mysqli_query($mysql, $statement);
         $col = [];
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = mysqli_fetch_array($result)) {
             $col[] = '<a href="javascript:deselect_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }
         return implode("<br>", $col);
@@ -1118,12 +1104,12 @@ from pick where
 pick.player_id is NULL
 order by pick_id
 limit 1";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         // Now find if our team has been skipped
         $statement = "select * from pick where pick_id < '".$row['pick_id']."' and
 pick.team_id = '".$this->data['team_id']."' and
 pick.player_id = '".kSkipPick."'";
-        if (mysql_num_rows(mysql_query($statement))) {
+        if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
             return true;
         } else {
             return false;
@@ -1132,8 +1118,9 @@ pick.player_id = '".kSkipPick."'";
 
     public function can_pick()
     {
+        global $mysql;
         $statement = "select * from pick where player_id is NULL order by pick_id";
-        $row = mysql_fetch_array(mysql_query($statement));
+        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if ($row['team_id'] == $this->data['team_id']) {
             return true;
         } else {
@@ -1143,14 +1130,15 @@ pick.player_id = '".kSkipPick."'";
 
     public function get_columns(&$col, &$list, $allow_sort = true)
     {
+        global $mysql;
         // Generate the column list for the logged in user, values must be passed by referenc
         $statement = "select * from `column`, team_to_column where
 team_to_column.team_id = '".$this->data['team_id']."' and
 team_to_column.column_id = `column`.column_id
 order by `column`.column_order";
-        $result = mysql_query($statement);
-        echo mysql_error();
-        while ($row = mysql_fetch_array($result)) {
+        $result = mysqli_query($mysql, $statement);
+        echo mysqli_error($mysql);
+        while ($row = mysqli_fetch_array($result)) {
             $col_name = 'q'.md5($row['column_query']);
             $col[] = $row['column_query'].' '.$col_name;
             $list->set_header($col_name, $row['column_header'], $allow_sort, $allow_sort, $allow_sort);

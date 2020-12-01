@@ -25,6 +25,16 @@ define('kYear', '2020');
 
 // Classes
 include "includes/classes/page.inc.php";
+
+// Connection to the database, install if the file does not exist yet
+if (!file_exists("includes/config.inc.php")) {
+    $page = new page("install");
+    echo $page->draw();
+    exit;
+} else {
+    include "includes/config.inc.php";
+}
+
 include "includes/classes/login.inc.php";
 include "includes/classes/list.inc.php";
 include 'includes/classes/pick.inc.php';
@@ -42,15 +52,6 @@ if (!function_exists('json_encode')) {
     require_once 'includes/jsonwrapper_inner.php';
 }
 
-// Connection to the database, install if the file does not exist yet
-if (!file_exists("includes/config.inc.php")) {
-    $page = new page("install");
-    echo $page->draw();
-    exit;
-} else {
-    include "includes/config.inc.php";
-}
-
 // Encrypt legacy password
 encrypt_passwords();
 
@@ -59,20 +60,8 @@ $settings = new settings();
 $time_zone = $settings->get_value(kSettingTimeZone);
 if ($time_zone) {
     $statement = "select * from time_zone where time_zone_id = '$time_zone'";
-    $row = mysql_fetch_array(mysql_query($statement));
+    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
     putenv("TZ=".$row['time_zone_php']);
-    /*
-      // Taking out the MySQL time zone, we have removed all "now()" instances
-    // If the server is set to DST, it will automatically convert XST to XDT, so we'll need to
-    // re-load it for mysql
-    $statement = "select * from time_zone where time_zone_php = '".date("T")."'";
-    $row = mysql_fetch_array(mysql_query($statement));
-    if ($row['time_zone_mysql']) {
-      mysql_query("set time_zone = '".$row['time_zone_mysql']."'");
-    } else {
-      $_SESSION['message'] = "WARNING: Bad time zone!!!";
-    }
-    */
 }
 
 $login = new login();
