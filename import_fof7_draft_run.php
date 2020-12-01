@@ -390,12 +390,18 @@ if ($admin) {
 if ($admin) {
     $teams = [];
     $tids = [];
-    $pick_order = ['xxx']; // Initialize to the "no pick" value
     // Add the "no pick" value to the database
-    $statement = "select * from team where team_name = 'xxx'";
-    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
+    $statement = "select team_id from team where team_name = 'xxx'";
+    $result = mysqli_query($mysql, $statement);
+    if (!mysqli_num_rows($result)) {
         $statement = "insert into team (team_name, team_password, in_game_id) values ('xxx', '".md5(uniqid(rand()))."', '99')";
         mysqli_query($mysql, $statement);
+        $teams['xxx'] = mysqli_insert_id($mysql);
+    } else {
+        $row = mysqli_fetch_assoc($result);
+        $teams['xxx'] = $row['team_id'];
+    }
+    if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
     }
     //now build the team table from the team info csv
     unset($teamfile);
@@ -701,31 +707,7 @@ Please verify that you are uploading the correct file and that you have the curr
         //update the amenable field
         update_staff_amenable(1, 1);
     }
-  
-  
-  
-
-    /*
-      // draftpreview.html
-      if (file_exists($_FILES['draft_preview']['tmp_name'])) {
-        $file = file_get_contents($_FILES['draft_preview']['tmp_name']);
-        $lines = array();
-        $lines = preg_split("/[\n\r]+/", $file);
-        foreach($lines as $line) {
-          preg_match_all("/<TD ?[A-Z=]*>([^<]+)<\/TD>/", $line, $data, PREG_PATTERN_ORDER);
-          if ($data[1][0]) {
-        $name = $data[1][0];
-        $position_id = $positions[$data[1][1]];
-        $grade = $data[1][3];
-        $adj_grade = $data[1][4];
-        $statement = "update player set player_score = '$grade', player_adj_score = '$adj_grade' where
-    player_name = '".addslashes($name)."' and position_id = '$position_id'";
-        mysqli_query($mysql, $statement);
-          }
-        }
-      }
-    */
-
+    
     // Draft import is complete!
     $_SESSION['message'] = "Draft import complete.";
     header("Location: options.php");
