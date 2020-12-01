@@ -821,25 +821,6 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
           <option value="AM"'.$am.'>AM</option>
           <option value="PM"'.$pm.'>PM</option>
         </select>
-        Time zone:
-        <select name="time_zone"'.$time_access.'>';
-            $time_zone = $settings->get_value(kSettingTimeZone);
-            $html .= '
-          <option value="">Use Server\'s Time Zone</option>';
-            $statement = "select * from time_zone where time_zone_title is not null
-order by time_zone_id";
-            $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_assoc($result)) {
-                if ($row['time_zone_id'] == $time_zone) {
-                    $selected = " selected";
-                } else {
-                    $selected = "";
-                }
-                $html .= '
-          <option value="'.$row['time_zone_id'].'"'.$selected.'>'.$row['time_zone_title'].'</option>';
-            }
-            $html .= '
-        </select>
       </td>
     </tr>
     <tr>
