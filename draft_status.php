@@ -1,4 +1,4 @@
-<?
+<?php
 include 'includes/classes.inc.php';
 process_pick_queue();
 $page = new page('');

@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                install.php
  *                            -------------------
@@ -79,7 +79,7 @@ values ('$admin_user_id', '$i', '$i')";
 
 
 // Now create the config.inc.php file
-$config = '<?
+$config = '<?php
 $user = "'.$user.'";
 $password = "'.$password.'";
 $database = "'.$database.'";

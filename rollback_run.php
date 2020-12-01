@@ -1,4 +1,4 @@
-<?
+<?php
 // Rolls back to the selected pick
 include "includes/classes.inc.php";
 

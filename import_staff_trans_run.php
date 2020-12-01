@@ -1,4 +1,4 @@
-<?
+<?php
 
 include "includes/classes.inc.php";
 // This function imports the staff transaction file

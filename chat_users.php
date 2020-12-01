@@ -1,4 +1,4 @@
-<?
+<?php
 include "includes/classes.inc.php";
 
 $statement = "select team.team_name, team.team_id, team_owner

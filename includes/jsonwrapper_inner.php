@@ -1,4 +1,4 @@
-<?
+<?php
 require_once 'includes/JSON.php';
 
 function json_encode($arg)

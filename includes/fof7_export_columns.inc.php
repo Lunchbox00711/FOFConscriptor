@@ -1,4 +1,4 @@
-<?
+<?php
 define (kInGameID, 0);
 define (kLastName, 1);
 define (kFirstName, 2);

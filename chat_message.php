@@ -1,4 +1,4 @@
-<?
+<?php
 include "includes/classes.inc.php";
 
 if(get_magic_quotes_gpc()) {

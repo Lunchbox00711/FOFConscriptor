@@ -1,4 +1,4 @@
-<?
+<?php
 include "includes/classes.inc.php";
 
 $page = new page("chat");

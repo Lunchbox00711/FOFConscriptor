@@ -1,4 +1,4 @@
-<?
+<?php
 define (kName, 0);
 define (kPosition, 1);
 define (kPosGrp, 2);
