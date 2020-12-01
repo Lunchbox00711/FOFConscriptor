@@ -21,7 +21,7 @@ include "includes/classes.inc.php";
 
 if ($_POST['position_id']) {
     $statement = "select max(bpa_priority) from bpa where team_id = '".$_SESSION["selected_team_id"]."'";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     $priority = $row['max(bpa_priority)'] + 1;
     $statement = "insert into bpa (team_id, position_id, bpa_priority, attribute_id, bpa_max_experience)
 values

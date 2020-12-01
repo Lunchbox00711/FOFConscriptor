@@ -24,7 +24,7 @@ class team
         global $mysql;
         $team_id = mysqli_real_escape_string($mysql, $team_id);
         $statement = "select * from team where team_id = '$team_id'";
-        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $this->data = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     }
 
     public function team_name()
@@ -55,15 +55,16 @@ class team
     public function option_list()
     {
         global $mysql;
+        $html = '';
         $statement = "select * from team where team_id != '".kAdminUser."' order by team_name";
         $result = mysqli_query($mysql, $statement);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($row['team_id'] == $this->data['team_id']) {
                 $selected = ' selected';
             } else {
                 $selected = '';
             }
-            $html = '
+            $html .= '
 <option value="'.$row['team_id'].'"'.$selected.'>'.$row['team_name'].'</option>';
         }
         return $html;
@@ -237,7 +238,7 @@ order by selection_priority limit 1";
         } else {
             //have to make sure the player at the top of the list is suitable and amenable first!
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -260,9 +261,9 @@ order by selection_priority limit 1";
 selection_priority != '0'
 order by selection_priority";
             $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 $statement = "select * from staff where staff_id = ".$row["player_id"];
-                $test = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                $test = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                 if ($test["staff_amenable"] == 'Y' && $test[$suitable] > 0) {
                     return $test["staff_id"];
                 }
@@ -270,7 +271,7 @@ order by selection_priority";
             //nobody in the list is amenable!
             return null;
         }
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         return $row['player_id'];
     }
 
@@ -282,7 +283,7 @@ order by selection_priority";
             //in a staff situation we know the position based on the round and will just pick based on
             //most suitable
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -301,12 +302,12 @@ order by selection_priority";
                 $order = "staff_suitable_sc";
             }
             "select staff_id from staff where staff_amenable='Y' and ".$order.">0 order by ".$order." limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             return $row["staff_id"];
         }
         // Looks in our bpa queue and sees if we have a player to pick
         $statement = "select * from bpa where team_id = '".$this->data['team_id']."' order by bpa_priority limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $position_id = $row['position_id'];
         $bpa_id = $row['bpa_id'];
         $desc = '';
@@ -350,7 +351,7 @@ order by selection_priority";
 ".implode(" ", $joins)."
 where ".implode(" and ", $wheres)."
 ".$order." limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if (mysqli_error($mysql)) {
                 echo "<P>$statement<p>".mysqli_error($mysql);
             }
@@ -398,7 +399,7 @@ where ".implode(" and ", $wheres)."
         case "slotted_draft":
             // first figure out wich round is the team pick
             $statement = "select * from pick where player_id is NULL order by pick_id limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if ($row['team_id'] == $this->data['team_id']) {
                 $return = $row['slotted_draft_expire'];
             } else {
@@ -442,17 +443,17 @@ where team_id = '".$this->data['team_id']."'";
         if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             //first see if they can decline it because they don't need to pick
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id) / 32) + 1;
             if ($tid = $row["team_id"]) {
                 //we found the team
                 $statement = "select in_game_id from team where team_id=".$tid.";";
-                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                 $tid = $row["in_game_id"];
                 $statement = "select * from staff where fired=0 and drafted=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
                 $result = mysqli_query($mysql, $statement);
-                $result = mysqli_fetch_array($result);
+                $result = mysqli_fetch_assoc($result);
                 if ($result["staff_name"] != '') {
                     //they DO have a staff member in this position and can decline it.
                     $player_id = kDeclinePick;
@@ -469,7 +470,7 @@ where team_id = '".$this->data['team_id']."'";
                         $statement = "select staff_id from staff where staff_amenable='Y' and drafted=0 order by staff_suitable_sc desc limit 1";
                     }
                     $row = mysqli_query($mysql, $statement);
-                    $result = mysqli_fetch_array($row);
+                    $result = mysqli_fetch_assoc($row);
                     $player_id = $result["staff_id"];
                 }
             }
@@ -517,7 +518,7 @@ player.player_id = pick.player_id) selected_pos on selected_pos.position_id = pl
         $statement = "select ".implode(",", $col)." from (".implode(",", $tables).")
 ".implode(" ", $joins)." where ".implode(" and ", $wheres)."
 order by player.player_adj_score desc, player.player_current desc, player.player_future desc, player.player_id limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['player_id']) {
             return $row['player_id'];
         } else {
@@ -526,7 +527,7 @@ order by player.player_adj_score desc, player.player_current desc, player.player
             $statement = "select player.player_id from player left join pick on pick.player_id = player.player_id
 where pick.player_id is NULL
 order by player.player_adj_score desc, player.player_future desc, player.player_id limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             return $row['player_id'];
         }
     }
@@ -572,8 +573,8 @@ limit 2
 
         $result = mysqli_query($mysql, $statement);
         // Get two rows to drive the commentary
-        $row = mysqli_fetch_array($result);
-        $row2 = mysqli_fetch_array($result);
+        $row = mysqli_fetch_assoc($result);
+        $row2 = mysqli_fetch_assoc($result);
         if ($row['player_id']) {
             // Generate the commentary
             $commentary = addslashes($this->mock_commentary($row, $row2));
@@ -592,7 +593,7 @@ team_need_id = '".$row['team_need_id']."'";
         $statement = "select player.player_id from player left join mock_draft on mock_draft.player_id = player.player_id
 where mock_draft.player_id is NULL
 order by player.player_adj_score desc, player.player_id limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $commentary = $this->data['team_name']." has already picked at all positions, and this is the best player
 still on the board.";
         $statement = "insert into mock_draft (pick_id, team_id, player_id, mock_draft_commentary) values
@@ -748,7 +749,7 @@ there really isn't a better choice at this point.";
             //in a staff situation we know the position based on the round and will just pick based on
             //most suitable
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -767,7 +768,7 @@ there really isn't a better choice at this point.";
                 $order = "staff_suitable_sc";
             }
             "select staff_id from staff where staff_amenable='Y' order by ".$order." limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             return $row["staff_id"];
         }
         // Find the highest need compared to the best score
@@ -805,7 +806,7 @@ having ".implode(" and ", $having)."
 order by pick_order desc
 limit 1
 ";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['player_id']) {
             return $row['player_id'];
         }
@@ -817,7 +818,7 @@ limit 1
         $statement = "select player.player_id from player left join pick on pick.player_id = player.player_id
 where pick.player_id is NULL
 order by player.player_adj_score desc, player.player_id limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
 
         return $row['player_id'];
     }

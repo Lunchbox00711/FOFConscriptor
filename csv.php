@@ -31,7 +31,7 @@ if (!$staff) {
     $result = mysqli_query($mysql, $statement);
     echo mysqli_error($mysql);
     $line = [];
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         list($first, $last) = explode(" ", $row['player_name']);
         $line[] = ceil(($row['pick_id']) / 32).','.($row['pick_id'] - ((ceil(($row['pick_id']) / 32) - 1) * 32)).','.$row['in_game_id'].','.$row['player_in_game_id'];
     }
@@ -41,7 +41,7 @@ if (!$staff) {
     $result = mysqli_query($mysql, $statement);
     echo mysqli_error($mysql);
     $line = [];
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         list($first, $last) = explode(" ", $row['staff_name']);
         $line[] = ceil(($row['pick_id']) / 32).','.$row['in_game_id'].','.$row['staff_in_game_id'];
     }

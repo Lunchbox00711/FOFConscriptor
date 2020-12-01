@@ -36,7 +36,7 @@ class login
         global $settings;
         global $mysql;
         $statement = "select * from team where team_id = '".mysqli_real_escape_string($mysql, $_SESSION['team_id'] ?? '')."'";
-        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $this->data = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         // if (!$this->data['team_id'] && defined('kRedirect')) {
         //     $_SESSION['message'] = "That login is not valid.";
         //     unset($_SESSION['team_id']);
@@ -48,7 +48,7 @@ class login
         mysqli_query($mysql, $statement);
         if ($settings->get_value(kSettingChatType) == 1) {
             $statement = "select * from last_update";
-            $array = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $array = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $this->data['latest_message'] = $array['latest_message'];
             if (!$_SESSION['latest_message']) {
                 $_SESSION['latest_message'] = $array['latest_message'];
@@ -84,7 +84,7 @@ class login
     {
         global $mysql;
         $statement = "select * from last_update";
-        $array = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $array = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $this->data['latest_message'] = $array['latest_message'];
     }
     public function is_admin()
@@ -637,7 +637,7 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
     </tr>';
             $statement = "select * from pick where pick_id is not NULL order by pick_id desc limit 1";
             $result = mysqli_query($mysql, $statement);
-            $result = mysqli_fetch_array($result);
+            $result = mysqli_fetch_assoc($result);
             $rounds = $result['pick_id'] / 32;
 
             $draft_type = $settings->get_value(kSettingDraftType);
@@ -829,7 +829,7 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
             $statement = "select * from time_zone where time_zone_title is not null
 order by time_zone_id";
             $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 if ($row['time_zone_id'] == $time_zone) {
                     $selected = " selected";
                 } else {
@@ -920,7 +920,7 @@ order by time_zone_id";
             $statement = "select * from pick where player_id is NULL or player_id = '".kDraftHalt."' order by pick_id";
             $result = mysqli_query($mysql, $statement);
             $found = false;
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 if (!$found && $row['player_id'] == kDraftHalt) {
                     $selected = " selected";
                     $found = true;
@@ -983,7 +983,7 @@ Stopping and restarting the draft will reset the clock for the current pick.</td
     {
         global $mysql;
         $statement = "select count(*) num from team_to_column where team_id = '".$this->data['team_id']."'";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['num'] < 15) {
             if ($_GET['column_id']) {
                 $statement = "insert into team_to_column (team_id, column_id)
@@ -1047,7 +1047,7 @@ order by `column`.column_order";
         }
         $result = mysqli_query($mysql, $statement);
         $col = [];
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $col[] = '<a href="javascript:select_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }
         return implode("<br>", $col);
@@ -1070,7 +1070,7 @@ order by `column`.column_order";
         }
         $result = mysqli_query($mysql, $statement);
         $col = [];
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $col[] = '<a href="javascript:deselect_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }
         return implode("<br>", $col);
@@ -1095,7 +1095,7 @@ from pick where
 pick.player_id is NULL
 order by pick_id
 limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         // Now find if our team has been skipped
         $statement = "select * from pick where pick_id < '".$row['pick_id']."' and
 pick.team_id = '".$this->data['team_id']."' and
@@ -1111,7 +1111,7 @@ pick.player_id = '".kSkipPick."'";
     {
         global $mysql;
         $statement = "select * from pick where player_id is NULL order by pick_id";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['team_id'] == $this->data['team_id']) {
             return true;
         } else {
@@ -1129,7 +1129,7 @@ team_to_column.column_id = `column`.column_id
 order by `column`.column_order";
         $result = mysqli_query($mysql, $statement);
         echo mysqli_error($mysql);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $col_name = 'q'.md5($row['column_query']);
             $col[] = $row['column_query'].' '.$col_name;
             $list->set_header($col_name, $row['column_header'], $allow_sort, $allow_sort, $allow_sort);

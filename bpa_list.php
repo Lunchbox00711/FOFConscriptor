@@ -40,7 +40,7 @@ if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
 <option value="-2">Future Rating</option>
 <option value="-3">Current Rating</option>';
 }
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $html .= '
   <option value="'.$row['attribute_id'].'">'.$row['attribute_name'].'</option>';
 }

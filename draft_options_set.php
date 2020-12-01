@@ -176,7 +176,7 @@ if ($login->is_admin()) {
         //Set the pick time limit per round!
         $statement = "select * from pick where pick_id is not NULL order by pick_id desc limit 1";
         $result = mysqli_query($mysql, $statement);
-        $result = mysqli_fetch_array($result);
+        $result = mysqli_fetch_assoc($result);
         $rounds = $result['pick_id'] / 32;
         for ($i = 1; $i < $rounds + 1; $i++) {
             // Set the pick time limit
@@ -228,7 +228,7 @@ if ($login->is_admin()) {
         $current_time_for_each_pick = 0;
         $statement = "select * from pick order by pick_id";
         $result = mysqli_query($mysql, $statement);
-        while ($row_pick = mysqli_fetch_array($result)) {
+        while ($row_pick = mysqli_fetch_assoc($result)) {
             if ($row_pick['pick_id'] == 0) {
                 continue;
             }

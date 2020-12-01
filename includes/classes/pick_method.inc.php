@@ -28,7 +28,7 @@ class pick_method
     {
         global $mysql;
         $statement = "select * from pick_method where pick_method_id = '".mysqli_real_escape_string($mysql, $pick_method_id)."'";
-        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $this->data = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     }
 
     public function option_list()
@@ -37,7 +37,7 @@ class pick_method
         $html = '';
         $statement = "select * from pick_method order by pick_method_id";
         $result = mysqli_query($mysql, $statement);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($row['pick_method_id'] == $this->data['pick_method_id']) {
                 $selected = " selected";
             } else {

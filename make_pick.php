@@ -25,14 +25,14 @@ if ($login->can_pick()) {
 and (pick.player_id is NULL or pick.player_id = '".kSkipPick."' )
 order by pick_id
 limit 1";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
   
     if ($row['pick_id'] && $_GET['player_id']) {
         make_pick($row['pick_id'], $_GET['player_id']);
     }
     if ($row['pick_id'] && $_GET['staff_id']) {
         $statement = "select * from staff where staff.staff_id = '".$_GET['staff_id']."'";
-        $row2 = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row2 = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row2['staff_amenable'] == 'Y') {
             make_pick($row['pick_id'], $_GET['staff_id']);
         }
@@ -43,14 +43,14 @@ if ($login->is_admin() && !empty($_SESSION['on_clock_team_id'])) {
 and (pick.player_id is NULL or pick.player_id = '".kSkipPick."' )
 order by pick_id
 limit 1";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
   
     if ($row['pick_id'] && $_GET['player_id']) {
         make_pick($row['pick_id'], $_GET['player_id']);
     }
     if ($row['pick_id'] && $_GET['staff_id']) {
         $statement = "select * from staff where staff.staff_id = '".$_GET['staff_id']."'";
-        $row2 = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row2 = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row2['staff_amenable'] == 'Y') {
             make_pick($row['pick_id'], $_GET['staff_id']);
         }

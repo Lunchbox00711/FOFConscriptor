@@ -57,7 +57,7 @@ $settings = new settings();
 $time_zone = $settings->get_value(kSettingTimeZone);
 if ($time_zone) {
     $statement = "select * from time_zone where time_zone_id = '$time_zone'";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     putenv("TZ=".$row['time_zone_php']);
 }
 

@@ -185,6 +185,6 @@ $valid_fof7_player_personal_ratings = 'Player_ID,Current_Screen_Passes,Current_S
 $positions = [];
 $statement = "select * from position_to_alias";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $positions[$row['alias_name']] = $row['position_id'];
 }

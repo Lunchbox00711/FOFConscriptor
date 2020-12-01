@@ -7,7 +7,7 @@ order by team_name";
 $result = mysqli_query($mysql, $statement);
 echo mysqli_error($mysql);
 $users = [];
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     if ($row['team_id'] != $login->team_id()) {
         if ($row['team_id'] == '1') {
             $users[] = '<a href="javascript:private_chat(\''.$row['team_id'].'\')">Admin</a>';

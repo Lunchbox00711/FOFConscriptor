@@ -23,7 +23,7 @@ left join pick on pick.player_id = player.player_id
 where pick.pick_id is NULL and
 player.player_name like '".$_POST['search']."%'";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $data[] = $row['player_name'];
 }
 echo json_encode($data);

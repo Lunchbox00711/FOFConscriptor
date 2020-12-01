@@ -26,7 +26,7 @@ pick.player_id = player.player_id and
 position.position_id = player.position_id";
 $result = mysqli_query($mysql, $statement);
 $line = [];
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     list($first, $last) = explode(" ", $row['player_name']);
     $line[] = $row['pick_id'].'. - '.$last.', '.$first.', '.$row['position_name'].', '.$row['player_school'];
 }

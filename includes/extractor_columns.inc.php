@@ -41,6 +41,6 @@ $valid_extractor = 'Name,Position,PosGrp,College,Team,Born,HomeTown,Agent,Design
 $positions = [];
 $statement = "select * from position_to_alias";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $positions[$row['alias_name']] = $row['position_id'];
 }

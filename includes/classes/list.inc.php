@@ -518,7 +518,7 @@ class table_list
 
         $result = mysqli_query($mysql, $statement);
         $i = 0;
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($row[$this->latitude] != 0) {
                 // We have a valid latitude and longitude
                 $bubble = '

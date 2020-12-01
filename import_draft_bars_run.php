@@ -73,7 +73,7 @@ Please verify that you are uploading the correct file and that you have the curr
 
         //determine the position this player plays and the player_id
         $statement = "select player_id,player_in_game_id,position_id from player where player_in_game_id=".$col["player_in_game_id"] ;
-        $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $result = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($result['player_id']) {
             $upload_count++;
         }
@@ -85,7 +85,7 @@ order by position_to_attribute_order";
         $result2 = mysqli_query($mysql, $statement);
         $i = 0;
         $attributes = [];
-        while ($row = mysqli_fetch_array($result2)) {
+        while ($row = mysqli_fetch_assoc($result2)) {
             //if we don't have this attribute exported (currently only Formations?) we need to add it anyway!
     if ($row["fof7_rookie_attribute_column"] ?? null == -1) {//check if this is the formations field
              $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '0', '0');";

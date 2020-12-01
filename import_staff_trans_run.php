@@ -35,7 +35,7 @@ include "includes/fof7_export_columns.inc.php";
 
 //figure out the last year imported
 $statement = "select * from staff_trans_history order by staff_trans_year desc limit 1";
-$row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+$row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
 $year = $row['staff_trans_year'];
 if ($year == null) {
     $year = 0;
@@ -72,7 +72,7 @@ Please verify that you are uploading the correct file and that you have the curr
             $col["staff_id"] = $columns[ktrans_player_id];
             //convert the transaction text to an id number
             $transstatement = "select staff_trans_id from staff_trans_types where staff_trans_name='".trim($columns[ktrans_trans])."'";
-            $transid = mysqli_fetch_array(mysqli_query($mysql, $transstatement));
+            $transid = mysqli_fetch_assoc(mysqli_query($mysql, $transstatement));
             $col["staff_trans_id"] = $transid["staff_trans_id"];
             $col["staff_team_id"] = $columns[ktrans_team_id];
             $tables = [];

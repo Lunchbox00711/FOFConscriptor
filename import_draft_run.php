@@ -147,7 +147,7 @@ Please verify that you are uploading the correct file and that you have the curr
             $statement = "select * from player where player_name = '".addslashes($columns[kName])."' and
 position_id = '".$positions[$columns[kPosition]]."' and
 player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))."'";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $col["player_id"] = $row['player_id'];
             $player_id = $row['player_id'];
             if ($row['player_id']) {
@@ -201,7 +201,7 @@ player_dob = '".date("Y-m-d", strtotime(str_replace("-", "/", $columns[kBorn])))
         $statement = "select * from position_to_attribute where position_id = '".$positions[$columns[kPosition]]."'
 order by position_to_attribute_order";
         $result = mysqli_query($mysql, $statement);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($qb && $row['attribute_id'] == 1) {
                 // This is the odd attribute, formations, with only one value
                 if ($admin) {
@@ -266,7 +266,7 @@ if ($admin) {
                 if ($value) {
                     if (!array_key_exists($value, $teams)) {
                         $statement = "select * from team where team_name = '$value'";
-                        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                         if (!$row['team_id']) {
                             $statement = "insert into team (team_name) values ('$value')";
                             mysqli_query($mysql, $statement);
@@ -343,7 +343,7 @@ player_name = '".addslashes($name)."' and position_id = '$position_id'";
             // See if the player exists
             $name = addslashes($columns[kInterrogatorFirstName].' '.$columns[kInterrogatorLastName]);
             $statement = "select * from player where player_name like '$name'";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if ($row['player_id']) {
                 $interrogator_players[$columns[kInterrogatorPlayerID]] = $row['player_id'];
             }

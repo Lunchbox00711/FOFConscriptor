@@ -27,7 +27,7 @@ class pick
     {
         global $mysql;
         $statement = "select * from pick where pick_id = '".mysqli_real_escape_string($mysql, $pick_id)."'";
-        $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $this->data = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     }
 
     public function draw_edit()

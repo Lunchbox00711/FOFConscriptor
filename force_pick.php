@@ -37,7 +37,7 @@ if ($login->is_admin()) {
 where ".implode(" and ", $wheres)."
 order by pick.pick_id limit 1";
 
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     $team = new team($row['team_id']);
   
     // This function sets the selected pick's player_id to kSkipPick to allow their pick to be skipped

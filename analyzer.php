@@ -31,7 +31,7 @@ if (!$staff) {
 
     $result = mysqli_query($mysql, $statement) or die("Bad query: ".mysqli_error($mysql));
 
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $player_name = $row['player_name'];
         $last = substr($player_name, strpos($player_name, ' '));
         $first = substr($player_name, 0, strpos($player_name, ' '));
@@ -42,7 +42,7 @@ if (!$staff) {
    pick.team_id = team.team_id and staff.staff_id = pick.player_id and staff.staff_role_id=staff_roles.staff_role_id order by pick_id";
     $result = mysqli_query($mysql, $statement);
     echo mysqli_error($mysql);
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         list($first, $last) = explode(" ", $row['staff_name']);
         $line[] = $row['pick_id'].'. - '.$last.', '.$first.', '.$row['staff_role_name'];
     }

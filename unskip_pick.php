@@ -22,7 +22,7 @@ include "includes/classes.inc.php";
 if ($login->is_admin()) {
     // This function sets the selected pick's player_id to kSkipPick to allow their pick to be skipped
     $statement = "select * from pick where pick_id = '".$_GET['pick_id']."'";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     $team = new team($row['team_id']);
     $statement = "update pick set player_id = NULL,
 pick_time = '".$team->new_pick_time(time())."'
@@ -31,7 +31,7 @@ and player_id = '".kSkipPick."'";
     mysqli_query($mysql, $statement);
     // We might have a stopped draft, if so let's mark any high NULLs as stopped draft
     $statement = "select * from pick where player_id = '".kDraftHalt."' order by pick_id limit 1";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     if ($row['pick_id']) {
         $statement = "update pick set player_id = '".kDraftHalt."' where
 player_id is NULL and pick_id > '".$row['pick_id']."'";

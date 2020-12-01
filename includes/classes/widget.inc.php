@@ -52,7 +52,7 @@ position.position_id = player.position_id
 order by pick_id desc limit 5";
         $result = mysqli_query($mysql, $statement);
         $pick = [];
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $pick[] = calculate_pick($row['pick_id']).'. ('.$row['team_name'].') - '.$row['player_name'].', '.$row['position_name'].', '.
     $row['player_school'];
         }
@@ -63,7 +63,7 @@ order by pick_id desc limit 5";
         // Who is on the clock
         $statement = "select * from pick,team where pick.team_id = team.team_id and
 pick.player_id is NULL order by pick_id limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['pick_id']) {
             $html .= '
   <div class="widget_item">
@@ -82,7 +82,7 @@ pick.team_id = team.team_id
 order by pick.pick_id limit 5";
         $result = mysqli_query($mysql, $statement);
         $pick = [];
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $pick[] = calculate_pick($row['pick_id']).' - '.$row['team_name'];
         }
         $html .= implode("<br>", $pick);

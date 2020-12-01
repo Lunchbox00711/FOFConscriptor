@@ -86,7 +86,7 @@ class settings
         global $mysql;
         $statement = "select * from settings";
         $result = mysqli_query($mysql, $statement);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $this->setting[$row['setting_id']] = $row['setting_value'];
         }
     }
@@ -103,7 +103,7 @@ where pick.team_id = team.team_id
 and pick.player_id is NULL
 order by pick_id
 limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $currentround = ($row['pick_id'] - 1) / 32 + 1;
             return $this->setting[100 + $currentround] ?? null;
         } else {

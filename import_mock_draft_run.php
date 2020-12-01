@@ -78,7 +78,7 @@ Please verify that you are uploading the correct file.";
         if ($columns[kpr_team] != 99) {
             $position_id = $positions[trim($columns[kpr_position])];
             $statement = "select team_id from team where in_game_id=".$columns[kpr_team];
-            $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $result = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         
             $statement = "insert into roster (player_id,in_game_team_id,team_id,position_id) values (".$columns[kpr_player_id].",".$columns[kpr_team].",".$result["team_id"].",".$position_id.")";
             mysqli_query($mysql, $statement);
@@ -115,7 +115,7 @@ Please verify that you are uploading the correct file.";
         $statement = "update roster set current=".$columns[kprating_current].",future=".$columns[kprating_future]." where player_id=".$columns[kprating_player_id];
         mysqli_query($mysql, $statement);
         $statement = "select * from roster where player_id=".$columns[kprating_player_id];
-        if ($result = mysqli_fetch_array(mysqli_query($mysql, $statement))) {
+        if ($result = mysqli_fetch_assoc(mysqli_query($mysql, $statement))) {
             //now that the ratings are there, and while we are in a player loop already...
             // Store the best player at each position for each team.
             $position_id = $result["position_id"];
@@ -139,7 +139,7 @@ mysqli_query($mysql, $statement);
 $statement = "select * from position";
 $result = mysqli_query($mysql, $statement);
 $position_list = [];
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $position_list[] = $row['position_id'];
 }
 foreach ($data as $team_id => $team_data) {
@@ -157,7 +157,7 @@ $statement = "truncate table mock_draft";
 mysqli_query($mysql, $statement);
 $statement = "select * from pick where team_id > 0 order by pick_id";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $team = new team($row['team_id']);
     $team->mock_pick($row['pick_id']);
 }

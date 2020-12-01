@@ -176,7 +176,7 @@ class page
                 $_SESSION['latest_message'] = $login->latest_message();
             }
             $statement = "select * from last_update";
-            $update = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $update = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if (($update['latest_message']) >= ($_SESSION['latest_message'])) {
                 $login->set_latest_message();
                 $_SESSION['latest_message'] = $login->latest_message();
@@ -185,7 +185,7 @@ class page
         where team_2_id = '".$login->team_id()."' and team_2_arrived is NULL and
         team.team_id = chat_room.team_1_id and
         chat_room_ping > '".date("Y-m-d H:i:s", strtotime("-30 seconds"))."'";
-                $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                 if ($row['chat_room_id']) {
                     $message = "<b>Private chat invitation from ".$row['team_name']." -
         <a href=\"javascript:popup('private_chat.php?chat_room_id=".$row['chat_room_id']."', '_blank', 600, 450)\">Click Here</a></b>";
@@ -205,7 +205,7 @@ class page
         and chat_id > '".$_SESSION['last_chat_id']."'
         and chat_room_id is NULL
         order by chat_id limit 1";
-                    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                     if ($row['chat_id']) {
                         $_SESSION['last_chat_id'] = $row['chat_id'];
                         $team = $row['team_name'];
@@ -248,7 +248,7 @@ class page
         $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres)."
 order by pick_id
 limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($row['pick_id']) {
             $pick = $row['pick_id'] % 32;
             if ($pick == 0) {
@@ -303,7 +303,7 @@ On the clock: '.$row['team_name'].' (round '.ceil(($row['pick_id']) / 32).', pic
         } else {
             // We are either done or halted
             $statement = "select count(*) num from pick where player_id = '".kDraftHalt."'";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if ($row['num']) {
                 // Draft is halted
                 $html .= '
@@ -455,7 +455,7 @@ Draft is complete';
     order by chat_time";
             $result = mysqli_query($mysql, $statement);
             $chat = '<span class="chat_text">';
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 if ($login->is_admin() || 1) {
                     $chat .= '
     <span class="chat_time">('.date("m/d g:i:s a T", strtotime($row['chat_time'])).')</span><br>';
@@ -516,7 +516,7 @@ order by position_to_attribute_order";
             $result = mysqli_query($mysql, $statement);
             echo mysqli_error($mysql);
             $i = 0;
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 $alias = "pa_$i";
                 if ($uploaded) {
                     $tables[] = "team_player_to_attribute $alias";
@@ -811,7 +811,7 @@ To choose specific staff, change your preferences in the "Options" tab.';
         if ($_GET['filter_suitable']) {
             $checked = " checked";
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $pick_id = $row["pick_id"];
             $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
@@ -876,7 +876,7 @@ order by team_name";
         $result = mysqli_query($mysql, $statement);
         echo mysqli_error($mysql);
         $users = [];
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $users[] = $row['team_owner'];
         }
     
@@ -1003,7 +1003,7 @@ skip";
             echo mysqli_error($mysql);
             exit;
         }
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($row['team_id'] ?? '' == $_GET['team_id']) {
                 $selected = " selected";
             } else {
@@ -1095,7 +1095,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $statement = "select * from team where team_id != '".kAdminUser."' and team_name != 'xxx' order by team_name";
         $result = mysqli_query($mysql, $statement);
         echo mysqli_error($mysql);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($row['team_id'] ?? null == $_GET['team_id'] ?? null) {
                 $selected = " selected";
             } else {
@@ -1304,7 +1304,7 @@ players at once.</p>
         $result = mysqli_query($mysql, $staff_statement);
         echo mysqli_error($mysql);
         $html .= "<SELECT id=\"a\" size=\"10\" multiple>";
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $html .= "<OPTION value=\"a\">".$row['staff_name']."</OPTION>";
         }
         $html .= "</SELECT>
@@ -1565,14 +1565,14 @@ where ".implode(" and ", $wheres);
         //first make sure they have someone in this position
         $round = floor(($pick_id - 1) / 32) + 1;
         $statement = "select team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         if ($tid = $row["team_id"]) {
             //we found the team
             $statement = "select in_game_id from team where team_id=".$tid.";";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             $tid = $row["in_game_id"];
             $statement = "select * from staff where fired=0 and drafted=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
-            $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $result = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if ($result["staff_name"] != '') {
                 //they DO have a staff member in this position and can decline it.
                 $statement = "update pick set player_id = '".kDeclinePick."' where pick_id = '".$_GET['pick_id']."'
@@ -1782,14 +1782,14 @@ draft again).</p>';
         $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres).'
 order by pick_id desc';
         $result = mysqli_query($mysql, $statement);
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 if ($row['pick.player_id'] == kDeclinePick) {
                     $html .= '
           <option value="'.$row['pick_id'].'">'.calculate_pick($row['pick_id']).' - '.$row['team_name'].' - Declined</option>';
                 } else {
                     $statement = "select staff_name from staff where staff.staff_id='".$row['pick.player_id']."'";
-                    $row2 = mysqli_fetch_array(mysqli_query($mysql, $statement));
+                    $row2 = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
                     $html .= '
           <option value="'.$row['pick_id'].'">'.calculate_pick($row['pick_id']).' - '.$row['team_name'].' - '.
     $row2['staff_name'].'</option>';
@@ -1863,7 +1863,7 @@ please take the time to verify their accuracy.</p>
     <td class="heading">Team</td>
     <td class="heading">Code</td>
   </tr>';
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $team = new team($row['team_id']);
             $html .= '
   <input type="hidden" name="team_name['.$row['team_to_name_id'].']" value="'.$row['team_name'].'">
@@ -1911,7 +1911,7 @@ affect future scout picks.</p>
         $statement = "select * from position order by position_id";
         $result = mysqli_query($mysql, $statement);
         $class = 'dark';
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if ($class == 'dark') {
                 $class = "light";
             } else {
@@ -1943,7 +1943,7 @@ affect future scout picks.</p>
             $statement = $_POST['query'];
             $result = mysqli_query($mysql, $statement);
             $data = [];
-            while ($row = mysqli_fetch_array($result, MYSQL_ASSOC)) {
+            while ($row = mysqli_fetch_assoc($result, MYSQL_ASSOC)) {
                 $header = [];
                 foreach ($row as $key => $value) {
                     $header[] = $key;
@@ -1971,7 +1971,7 @@ affect future scout picks.</p>
                 }
                 $result = mysqli_query($mysql, $statement);
                 $data = [];
-                while ($row = mysqli_fetch_array($result, MYSQL_ASSOC)) {
+                while ($row = mysqli_fetch_assoc($result, MYSQL_ASSOC)) {
                     $data[] = "<td>".implode("</td><td>", $row)."</td>";
                 }
                 $html .= '

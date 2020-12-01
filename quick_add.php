@@ -24,7 +24,7 @@ left join pick on pick.player_id = player.player_id
 where pick.pick_id is NULL and
 player.player_name like '".mysqli_real_escape_string($mysql, $_POST['quick_add'])."%'";
     $result = mysqli_query($mysql, $statement);
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         $statement = "insert into selection set player_id = '".$row['player_id']."', team_id = '".$_SESSION["selected_team_id"]."',
 selection_priority = ".time();
         mysqli_query($mysql, $statement);

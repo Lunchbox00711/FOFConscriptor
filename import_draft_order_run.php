@@ -45,7 +45,7 @@ $upload_count = 0;
 $positions = [];
 $statement = "select * from position_to_alias";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $positions[$row['alias_name']] = $row['position_id'];
 }
 
@@ -70,7 +70,7 @@ left join pick using (player_id)
 where player_name = '".mysqli_real_escape_string($mysql, $columns[kName])."' and
 position_id = '".$positions[$columns[kPosition]]."' and
 pick.player_id is NULL";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $col[] = "player_id = {$row['player_id']}";
         $player_id = $row['player_id'];
         if ($row['player_id']) {

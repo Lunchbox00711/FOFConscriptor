@@ -29,7 +29,7 @@ class position
         if (!$staff) {
             $statement = "select * from position order by position_id";
             $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 if ($row['position_id'] ?? null == $_GET['position_id'] ?? null) {
                     $selected = " selected";
                 } else {
@@ -41,7 +41,7 @@ class position
         } else {
             $statement = "select * from staff_roles order by staff_role_id";
             $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 if ($row['staff_role_id'] == $_GET['position_id']) {
                     $selected = " selected";
                 } else {

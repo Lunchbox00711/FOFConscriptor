@@ -34,7 +34,7 @@ chat_room_id = '".$_GET['chat_room_id']."'";
     $chat_room_id = $_GET['chat_room_id'];
     $statement = "select team.* from team, chat_room where team.team_id = chat_room.team_1_id and
 chat_room_id = '$chat_room_id'";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     $html = str_replace("%team_name%", $row['team_name'], $html);
 } else {
     $value = $login->latest_message() + 1;
@@ -43,7 +43,7 @@ chat_room_id = '$chat_room_id'";
     $statement = "select * from chat_room where team_1_id = '".$login->team_id()."' and
 team_2_id = '".$_GET['team_id']."' and
 team_2_arrived is NULL";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     if ($row['chat_room_id']) {
         $chat_room_id = $row['chat_room_id'];
     } else {
@@ -53,7 +53,7 @@ team_2_arrived is NULL";
         $chat_room_id = mysqli_insert_id($mysql);
     }
     $statement = "select * from team where team_id = '".$_GET['team_id']."'";
-    $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
     $html = str_replace("%team_name%", $row['team_name'], $html);
 }
 $html = str_replace("%chat_room_id%", $chat_room_id, $html);

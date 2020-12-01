@@ -121,7 +121,7 @@ Please verify that you are uploading the correct file and that you have the curr
             $col["player_name"] .= ' Jr.';
         }
         $statement = "select position_id from position_to_alias where alias_name='".trim($columns[kInfoPosition])."'";
-        $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $result = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $col["position_id"] = $result["position_id"];
         $col["player_school"] = addslashes($columns[kInfoCollege]);
         $temp = (trim($columns[kInfoMonth_Born]).'/'.trim($columns[kInfoDay_Born]).'/'.trim($columns[kInfoYear_Born]));
@@ -370,7 +370,7 @@ Please verify that you are uploading the correct file and that you have the curr
 
         //determine the position this player plays and the player_id
         $statement = "select player_id,player_in_game_id,position_id from player where player_in_game_id=".$columns[kRecordPlayer_ID];
-        $result = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $result = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
 
         //determine the attributes we need for this position
         $statement = "select * from attribute, position_to_attribute, fof7_rookie_attribute_map where
@@ -380,7 +380,7 @@ order by position_to_attribute_order";
         $result2 = mysqli_query($mysql, $statement);
         $i = 0;
         $attributes = [];
-        while ($row = mysqli_fetch_array($result2)) {
+        while ($row = mysqli_fetch_assoc($result2)) {
             //if we don't have this attribute exported (currently only Formations?) we need to add it anyway!
     if ($row["fof7_attribute_column"] == -1) {//check if this is the formations field
             //for ( $i=0; $qb_id[$i]!=$result["player_in_game_id"]; $i++ ){}
@@ -432,7 +432,7 @@ order by position_to_attribute_order";
         //$city=trim($matches[2][0]);
         if (!array_key_exists($city, $teams)) {
             $statement = "select * from team where team_name = '$city'";
-            $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+            $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
             if (!$row['team_id']) {
                 $statement = "insert into team (team_name, in_game_id) values ('$city','$id')";
                 mysqli_query($mysql, $statement);

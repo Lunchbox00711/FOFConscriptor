@@ -34,7 +34,7 @@ if ($login->is_admin() && $_POST['pick_id']) {
         $subject = $settings->get_value(kSettingLeagueName)." Draft Rollback Notification";
         $message = "The draft has been rolled back to pick ".calculate_pick($_POST['pick_id']).".
 The following players/staff are back on the board.  If you had them in your queue you will need to re-add them.";
-        while ($row = mysqli_fetch_array($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             if (!$staff) {
                 $message .= '
 
@@ -47,7 +47,7 @@ The following players/staff are back on the board.  If you had them in your queu
                 $round = floor(($_POST['pick_id'] - 1) / 32) + 1;
                 $statement = "select * from staff,team where staff.staff_role_id=".$round." and team.team_id=".$row['team_id']." and staff.staff_curr_team_id=team.in_game_id";
                 $result2 = mysqli_query($mysql, $statement);
-                if ($row2 = mysqli_fetch_array($result2)) {
+                if ($row2 = mysqli_fetch_assoc($result2)) {
                     //yep they fired a guy.  Unfire him.
                     $statement = "update staff set fired = 0 where staff_name = '".$row2['staff_name']."'";
                     mysqli_query($mysql, $statement);
@@ -63,13 +63,13 @@ The following players/staff are back on the board.  If you had them in your queu
 
         // send this message to each team
         $statement = "select * from team where team_id = '".kAdminUser."'";
-        $row = mysqli_fetch_array(mysqli_query($mysql, $statement));
+        $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
         $from = "FOF Conscriptor Admin <".$row['team_email'].">";
         $fromaddress = $row['team_email'];
         if ($settings->get_value(kSettingSendMails)) {
             $statement = "select * from team where team_email is not NULL";
             $result = mysqli_query($mysql, $statement);
-            while ($row = mysqli_fetch_array($result)) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 require_once './includes/lib/swift_required.php';
                 if ($settings->get_value(kSettingEmailType) == kEmailTypeMail) {
                     //mail($row['team_email'], $subject, $message, "From: $from");

@@ -25,7 +25,7 @@ position.position_id = player.position_id
 order by pick_id
 limit 32";
 $result = mysqli_query($mysql, $statement);
-while ($row = mysqli_fetch_array($result)) {
+while ($row = mysqli_fetch_assoc($result)) {
     echo "<P>".calculate_pick($row['pick_id'])." - ".$row['team_name']." - [b]".$row['position_name']." ".$row['player_name'].
     "[/b] - ".$row['mock_draft_commentary']."</p>";
 }
