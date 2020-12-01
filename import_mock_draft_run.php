@@ -62,7 +62,6 @@ foreach ($lines as $line) {
     if ($header) {
         // Make sure we have the current version of Extractor coming in.
         if ($line != $valid_fof7_player_record) {
-            echo $line;
             $_SESSION['message'] = "The file you imported does not appear to be a player record file.
 Please verify that you are uploading the correct file.";
             header("Location: import_mock_draft.php");
@@ -122,7 +121,7 @@ Please verify that you are uploading the correct file.";
             $position_id = $result["position_id"];
             $future = $result["future"];
             $team = $result["team_id"];
-            if ($data[$team][$position_id] < $future) {
+            if ($data[$team][$position_id] ?? null < $future) {
                 $data[$team][$position_id] = $future;
             }
         }

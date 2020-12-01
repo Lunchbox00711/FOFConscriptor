@@ -38,7 +38,7 @@ limit 1";
         }
     }
 }
-if ($login->is_admin()) {
+if ($login->is_admin() && !empty($_SESSION['on_clock_team_id'])) {
     $statement = "select pick_id, team.team_id, team_name from pick, team where pick.team_id = '".$_SESSION['on_clock_team_id']."'
 and (pick.player_id is NULL or pick.player_id = '".kSkipPick."' )
 order by pick_id

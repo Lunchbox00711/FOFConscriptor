@@ -63,7 +63,7 @@ class team
             } else {
                 $selected = '';
             }
-            $html .= '
+            $html = '
 <option value="'.$row['team_id'].'"'.$selected.'>'.$row['team_name'].'</option>';
         }
         return $html;

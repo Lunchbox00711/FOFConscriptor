@@ -30,6 +30,10 @@ class table_list
     public $extra_text = null;
     public $buttons = null;
     public $has_map = false;
+    public $link;
+    public $cell_style;
+    public $id_col = null;
+    public $style;
 
     public function __construct($multipage = true, $interface_append = '')
     {
@@ -40,14 +44,14 @@ class table_list
         // Retrieve the order_by value
         $this->order_by = $_GET['order_by'] ?? null;
         if (!$this->order_by) {
-            $this->order_by = $_SESSION['list_order_by'][$this->interface_id];
+            $this->order_by = $_SESSION['list_order_by'][$this->interface_id] ?? null;
         }
         $_SESSION['list_order_by'][$this->interface_id] = $this->order_by;
 
         // Retrieve the page page value, and set to 0 if not set
         $this->page = $_POST['page'] ?? null;
         if (!$this->page) {
-            $this->page = $_SESSION['current_page'][$this->interface_id];
+            $this->page = $_SESSION['current_page'][$this->interface_id] ?? null;
         }
         if (!$this->page) {
             $this->page = 1;
@@ -57,10 +61,7 @@ class table_list
         // Retrieve the records per page, set it to 32 if not set
         $this->records_per_page = $_POST['records_per_page'] ?? null;
         if (!$this->records_per_page) {
-            $this->records_per_page = $_COOKIE['records_per_page_'.$this->interface_id];
-        }
-        if (!$this->records_per_page) {
-            $this->records_per_page = 32;
+            $this->records_per_page = $_COOKIE['records_per_page_'.$this->interface_id] ?? 32;
         }
         setcookie('records_per_page_'.$this->interface_id, $this->records_per_page, time() + 60 * 60 * 24 * 360 * 10);
         $this->queries = [];
@@ -264,7 +265,7 @@ class table_list
         // Draw the form if we have one
         if (is_array($this->form)) {
             $html .= '
-<form method="'.$this->form['method'].'" action="'.$this->form['action'].'" name="'.$this->form['name'].'" '.$this->form['extra'].'>';
+<form method="'.$this->form['method'].'" action="'.$this->form['action'].'" name="'.$this->form['name'].'" '.($this->form['extra'] ?? '').'>';
         }
 
         // Draw the header
@@ -313,9 +314,10 @@ class table_list
             $last = mysqli_num_rows($result);
         }
         $current = $first;
+        $class = 'dark';
         while ($current < $last) {
             mysqli_data_seek($result, $current);
-            $line = mysqli_fetch_object($result);
+            $line = mysqli_fetch_assoc($result);
             if ($class == "light") {
                 $class = "dark";
             } else {
@@ -325,7 +327,7 @@ class table_list
     <tr>';
             foreach ($this->header as $header => $values) {
                 if ($this->style) {
-                    $style = ' style="'.($line->{$this->style} ?? '').'"';
+                    $style = ' style="'.($line[$this->style] ?? '').'"';
                 } else {
                     $style = '';
                 }
@@ -384,25 +386,29 @@ class table_list
 
     public function get_data($result, $values, $record, $header)
     {
-        $line = mysqli_data_seek($result, $record);
+        $html = '';
+        mysqli_data_seek($result, $record);
+        $line = mysqli_fetch_assoc($result);
         if ($this->link) {
             if (preg_match('/%id%/', $this->link)) {
-                $link = str_replace("%id%", ($line->{$this->id_col} ?? ''), $this->link);
+                $link = str_replace("%id%", ($line[$this->id_col] ?? ''), $this->link);
             } else {
-                $link = $this->link . ($line->{$this->id_col} ?? '');
+                $link = $this->link . ($line[$this->id_col] ?? '');
             }
         } else {
             $link = '';
         }
-        if ($this->cell_style[$header]) {
-            $style = ($line->{$this->cell_style[$header]} ?? '');
+        if (array_key_exists($header, $this->cell_style ?? [])) {
+            $style = ($line[$this->cell_style[$header]] ?? '');
+        } else {
+            $style = '';
         }
         $html .= '
       <span style="'.$style.'">';
         if ($link && $values['link']) {
             if (!$style) {
                 if ($this->style) {
-                    $style = ' style="'.($line->{$this->style} ?? '').'"';
+                    $style = ' style="'.($line[$this->style] ?? '').'"';
                 } else {
                     $style = '';
                 }
@@ -410,12 +416,12 @@ class table_list
             $html .= '
       <a href="'.$link.'"'.$style.'>';
         }
-        $data = $line->{$header} ?? '';
-        if ($values['exec']) {
+        $data = $line[$header] ?? '';
+        if (!empty($values['exec'])) {
             $command = $values['exec'];
             $data = $command($data);
         }
-        if ($values['date']) {
+        if (!empty($values['date'])) {
             if ($data == '0000-00-00' || $data == '0000-00-00 00:00:00' || !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}/", $data)) {
                 if (!$data || preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}/", $data)) {
                     $data = "N/A";
@@ -424,14 +430,14 @@ class table_list
                 $data = date($values['date'], strtotime($data));
             }
         }
-        if ($values['number_format']) {
+        if (!empty($values['number_format'])) {
             $data = number_format($data, $values['number_format']);
         }
-        if ($values['format']) {
+        if (!empty($values['format'])) {
             $data = str_replace("%data%", $data, $values['format']);
         }
         if ($this->id_col) {
-            $data = str_replace("%id%", ($line->{$this->id_col} ?? ''), $data);
+            $data = str_replace("%id%", ($line[$this->id_col] ?? ''), $data);
         }
         if (!$data) {
             $data = '&nbsp;';

@@ -52,9 +52,6 @@ if (!function_exists('json_encode')) {
     require_once 'includes/jsonwrapper_inner.php';
 }
 
-// Encrypt legacy password
-encrypt_passwords();
-
 $settings = new settings();
 
 $time_zone = $settings->get_value(kSettingTimeZone);

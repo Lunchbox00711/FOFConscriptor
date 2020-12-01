@@ -27,6 +27,9 @@ define('kBellSound', 3);
 
 class page
 {
+    protected $on_clock_team_id;
+    protected $on_clock;
+  
     public function __construct($page)
     {
         $this->page = $page;
@@ -411,7 +414,7 @@ Draft is complete';
         global $mysql;
     
         if ($settings->get_value(kSettingChatType) == kChatTypeFlash) {
-            $content .= file_get_contents("includes/html/chat.html");
+            $content = file_get_contents("includes/html/chat.html");
             $content = str_replace("%league%", $settings->get_value(kSettingLeagueName), $content);
             $html = '%content%';
             $html = str_replace("%league%", $settings->get_value(kSettingLeagueName), $html);
@@ -490,9 +493,9 @@ Draft is complete';
             $uploaded = false;
         }
         $list = new table_list();
-        $list->set_form_button("position_id", $_GET['position_id'], "hidden");
-        $list->set_form_button("show_attributes", $_GET['show_attributes'], "hidden");
-        $list->set_form_button("filter_overrated", $_GET['filter_overrated'], "hidden");
+        $list->set_form_button("position_id", ($_GET['position_id'] ?? null), "hidden");
+        $list->set_form_button("show_attributes", ($_GET['show_attributes'] ?? null), "hidden");
+        $list->set_form_button("filter_overrated", ($_GET['filter_overrated'] ?? null), "hidden");
         $tables[] = "player";
         $col[] = "player.player_id";
         $list->set_header("player_id", "#");
@@ -504,7 +507,7 @@ concat('<a href=\"show_player.php?in_game_id=', player.player_in_game_id, '\">',
         $tables[] = "combine_ratings";
         $wheres[] = "combine_ratings.position_id = position.position_id";
         // If we have a position_id, show the attributes
-        if ($_GET['position_id'] && $_GET['show_attributes']) {
+        if (!empty($_GET['position_id']) && !empty($_GET['show_attributes'])) {
             $statement = "select * from attribute, position_to_attribute where
 attribute.attribute_id = position_to_attribute.attribute_id and
 position_to_attribute.position_id = '".$_GET['position_id']."'
@@ -566,19 +569,19 @@ player_comments.team_id = '".$login->team_id()."'";
 <div id="player_comments_progress_%id%" style="display: none; text-align: center;"><img src="images/pinwheel.gif"></div>');
         }
 
-        if ($_GET['position_id']) {
+        if (!empty($_GET['position_id'])) {
             $wheres[] = "player.position_id = '".$_GET['position_id']."'";
         }
-        $list->append_query(["position_id" => $_GET['position_id'],
-                  "show_attributes" => $_GET['show_attributes'],
-                  "filter_overrated" => $_GET['filter_overrated']]);
+        $list->append_query(["position_id" => ($_GET['position_id'] ?? ''),
+                  "show_attributes" => ($_GET['show_attributes'] ?? ''),
+                  "filter_overrated" => ($_GET['filter_overrated'] ?? '')]);
 
         // Do not show selected players
         $joins[] = "left join pick on pick.player_id = player.player_id";
         $wheres[] = "pick.pick_id is NULL";
 
         // Create the form to make the pick
-        $html .= '
+        $html = '
 <h3>Players</h3>';
         if ($login->is_admin()) {
             // Admin can make the pick for the current team...
@@ -630,7 +633,7 @@ To choose specific players, change your preferences in the "Options" tab.';
           <option value="">All</option>';
         $position = new position('');
         $html .= $position->option_list();
-        if ($_GET['show_attributes']) {
+        if (!empty($_GET['show_attributes'])) {
             $checked = " checked";
         } else {
             $checked = "";
@@ -641,7 +644,7 @@ To choose specific players, change your preferences in the "Options" tab.';
       <td align="center" class="light">
         <input type="checkbox" name="show_attributes"'.$checked.'> Show Bar Values
       </td>';
-        if ($_GET['filter_overrated']) {
+        if (!empty($_GET['filter_overrated'])) {
             $checked = " checked";
             $wheres[] = "(team_player.player_impression is NULL or team_player.player_impression not like '%Overrated')";
         } else {
@@ -995,9 +998,12 @@ skip";
           <option value="">All</option>';
         $statement = "select * from team where in_game_id>'-1' and in_game_id<'32' order by team_name";
         $result = mysqli_query($mysql, $statement);
-        echo mysqli_error($mysql);
+        if (!$result) {
+            echo mysqli_error($mysql);
+            exit;
+        }
         while ($row = mysqli_fetch_array($result)) {
-            if ($row['team_id'] == $_GET['team_id']) {
+            if ($row['team_id'] ?? '' == $_GET['team_id']) {
                 $selected = " selected";
             } else {
                 $selected = '';
@@ -1030,6 +1036,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
     {
         global $login;
         global $mysql;
+        $html = '';
 
         if ($login->team_id()) {
             $html .= '
@@ -1043,7 +1050,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $list->set_header("pick_id", "Pick");
         $tables[] = "team";
         $wheres[] = "team.team_id = mock_draft.team_id";
-        if ($_GET['team_id']) {
+        if ($_GET['team_id'] ?? null) {
             $wheres[] = "team.team_id = '".$_GET['team_id']."'";
             $list->append_query(["team_id" => $_GET['team_id']]);
         }
@@ -1088,7 +1095,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $result = mysqli_query($mysql, $statement);
         echo mysqli_error($mysql);
         while ($row = mysqli_fetch_array($result)) {
-            if ($row['team_id'] == $_GET['team_id']) {
+            if ($row['team_id'] ?? null == $_GET['team_id'] ?? null) {
                 $selected = " selected";
             } else {
                 $selected = '';
@@ -1635,7 +1642,7 @@ and player_id is NULL";
             header("Location: selections.php");
             exit;
         }
-        $html .= '
+        $html = '
 <h3>Team Admin</h3>
 <p>This is the list of teams and whether or not they have a password.  To clear the password, turn the checkbox off.
 This will allow (require) the team to re-register.  They will not lose any of their selections.
@@ -1739,7 +1746,7 @@ where ".implode(" and ", $wheres)." group by team.team_id";
             header("Location: ./");
             exit;
         }
-        $html .= '
+        $html = '
 <h3>Draft Rollback</h3>
 <p>If you need to roll the draft back to a certain pick, you can do so here.  Please note that you should
 communicate this to your teams, as any player that was drafted will not be returned to the queue for any team.
@@ -1879,11 +1886,12 @@ please take the time to verify their accuracy.</p>
     public function draw_scout_weights()
     {
         global $login;
+        global $mysql;
         if (!$login->is_admin()) {
             header("Location: ./");
             exit;
         }
-        $html .= '
+        $html = '
 <h3>Scout Weights</h3>
 <p>To weight the positions of the scout picks and the mock draft, change the values here.  Larger values
 will increase the likelihood of that position being chosen, smaller values will decrease it.  Keep in mind
@@ -1899,6 +1907,7 @@ affect future scout picks.</p>
   </tr>';
         $statement = "select * from position order by position_id";
         $result = mysqli_query($mysql, $statement);
+        $class = 'dark';
         while ($row = mysqli_fetch_array($result)) {
             if ($class == 'dark') {
                 $class = "light";

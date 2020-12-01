@@ -27,7 +27,7 @@ if (!$_POST['team_password']) {
     header("Location: register.php");
     exit;
 }
-$col[] = "team_password = '".md5($_POST['team_password'])."'";
+$col[] = "team_password = '".passsword_hash($_POST['team_password'])."'";
 if (preg_match("/[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,4}/", $_POST['team_email'])) {
     $col[] = "team_email = '".$_POST['team_email']."'";
 }
@@ -48,12 +48,7 @@ mysqli_query($mysql, $statement);
 echo mysqli_error($mysql);
 if (mysqli_affected_rows($mysql) > 0) {
     $_SESSION['message'] = "Account created successfully.";
-    $_SESSION['fof_draft_login_team_name'] = $_POST['team_name'];
-    $_SESSION['fof_draft_login_team_password'] = md5($_POST['team_password']);
-    if ($_POST['save_login']) {
-        setcookie("fof_draft_login_team_name", $_POST['team_name'], strtotime("+30 days"));
-        setcookie("fof_draft_login_team_password", md5($_POST['team_password']), strtotime("+30 days"));
-    }
+    $_SESSION['team_id'] = mysqli_insert_id($mysql);
     header("Location: options.php");
 } else {
     $_SESSION['message'] = "Account creation failed.  Either the team name does not exist or it is already registered.";

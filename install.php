@@ -69,8 +69,10 @@ foreach ($queries as $query) {
 // Then store the admin password
 $statement = "insert into team (team_name, team_password, team_email, in_game_id)
 values
-('".$_POST['admin_user']."', '".md5($_POST['admin_password'])."', '".$_POST['admin_email']."', -1)";
-mysqli_query($mysql, $statement);
+('".$_POST['admin_user']."', '".password_hash($_POST['admin_password'], PASSWORD_BCRYPT)."', '".$_POST['admin_email']."', -1)";
+if (!mysqli_query($mysql, $statement)) {
+    die(mysqli_error($mysql));
+}
 $admin_user_id = mysqli_insert_id($mysql);
 // Populate the default colmuns, 1-12
 $i = 1;
@@ -96,7 +98,6 @@ file_put_contents("includes/config.inc.php", $config);
 
 $_SESSION['message'] = "Installation successful!";
 
-$_SESSION['fof_draft_login_team_name'] = $_POST['admin_user'];
-$_SESSION['fof_draft_login_team_password'] = md5($_POST['admin_password']);
+$_SESSION['team_id'] = $admin_user_id;
 header("Location: ./import_draft.php");
 exit;

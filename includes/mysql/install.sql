@@ -294,7 +294,7 @@ CREATE TABLE `team` (
   `team_autopick_wait` int(11) DEFAULT '30',
   `team_clock_adj` float(3,2) NOT NULL DEFAULT '1.00',
   `pick_method_id` int(11) NOT NULL DEFAULT '3',
-  `team_chat_time` datetime NOT NULL,
+  `team_chat_time` datetime,
   `team_email_prefs` tinyint(4) NOT NULL DEFAULT '1',
   `team_phone` text,
   `team_carrier` text,

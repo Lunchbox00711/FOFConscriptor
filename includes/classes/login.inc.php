@@ -35,24 +35,13 @@ class login
     {
         global $settings;
         global $mysql;
-        // Check for stored login info
-        if ($_COOKIE['fof_draft_login_team_name'] ?? null) {
-            $_SESSION['fof_draft_login_team_name'] = $_COOKIE['fof_draft_login_team_name'];
-            $_SESSION['fof_draft_login_team_password'] = $_COOKIE['fof_draft_login_team_password'];
-        }
-        $statement = "select * from team where team_name like '".mysqli_real_escape_string($mysql, $_SESSION['fof_draft_login_team_name'] ?? '')."' and
-team_password = '".mysqli_real_escape_string($mysql, $_SESSION['fof_draft_login_team_password'] ?? '')."'";
+        $statement = "select * from team where team_id = '".mysqli_real_escape_string($mysql, $_SESSION['team_id'] ?? '')."'";
         $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
         if (!$this->data['team_id'] && defined('kRedirect')) {
-            if ($_SESSION['fof_draft_login_team_name']) {
-                $_SESSION['message'] = "That login is not valid.";
-                unset($_SESSION['fof_draft_login_team_name']);
-                unset($_SESSION['fof_draft_login_team_password']);
-                setcookie("fof_draft_login_team_name", "", time() - 3600);
-                setcookie("fof_draft_login_team_password", "", time() - 3600);
-                header("Location: selections.php");
-                exit;
-            }
+            $_SESSION['message'] = "That login is not valid.";
+            unset($_SESSION['team_id']);
+            header("Location: selections.php");
+            exit;
         }
         // Update the chat time stamp for this user
         $statement = "update team set team_chat_time = '".date("Y-m-d H:i:s")."' where team_id = '".$this->team_id()."'";
@@ -376,7 +365,7 @@ each team has their own ability to set this for themselves)</i></p>';
             exit;
         }
         global $settings;
-        $html .= '
+        $html = '
 <h3>Draft Options</h3>';
         if ($this->is_admin()) {
             $html .= '
@@ -432,10 +421,10 @@ each team has their own ability to set this for themselves)</i></p>';
       <td align="right" class="light" width="40%">Chat System:</td>
       <td class="light">
         <select name="chat_type">
-          <option value="0"'.$flashtype.'>Off-site Flash (low server load)</option>
-          <option value="1"'.$phptype.'>Integrated PHP-DB (high server load)</option>
-          <option value="3"'.$templatetype.'>User-Defined Embed Code (low server load)</option>
-          <option value="2"'.$offtype.'>Chat Off</option>
+          <option value="0"'.($flashtype ?? '').'>Off-site Flash (low server load)</option>
+          <option value="1"'.($phptype ?? '').'>Integrated PHP-DB (high server load)</option>
+          <option value="3"'.($templatetype ?? '').'>User-Defined Embed Code (low server load)</option>
+          <option value="2"'.($offtype ?? '').'>Chat Off</option>
         </select>
       </td>
       <td class="light">If the integrated chat causes server resource issues then switch to the flash version.
@@ -560,10 +549,10 @@ each team has their own ability to set this for themselves)</i></p>';
                     $html .= ' disabled';
                 }
                 $html .= '>
-          <option value="0"'.$sysmailtype.'>mail - easy but unpredictable</option>
-          <option value="1"'.$syssendmailtype.'>sendmail - better queuing if it is available</option>
-          <option value="2"'.$syssmtptype.'>SMTP Relay - requires email server settings</option>
-          <option value="3"'.$sysofftype.'>Email Disabled</option>
+          <option value="0"'.($sysmailtype ?? '').'>mail - easy but unpredictable</option>
+          <option value="1"'.($syssendmailtype ?? '').'>sendmail - better queuing if it is available</option>
+          <option value="2"'.($syssmtptype ?? '').'>SMTP Relay - requires email server settings</option>
+          <option value="3"'.($sysofftype ?? '').'>Email Disabled</option>
         </select>
       </td>
       <td class="light">Only site admins can change email server settings.  Try sendmail first, if it doesn\'t work on your server then use SMTP 
@@ -1097,6 +1086,7 @@ order by `column`.column_order";
 
     public function skipped()
     {
+        global $mysql;
         // See if this team has been skipped
         // first find the current pick
         $statement = "select pick_id

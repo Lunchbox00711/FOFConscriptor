@@ -527,16 +527,3 @@ player.player_id = pick.player_id";
         mysqli_query($mysql, $statement);
     }
 }
-
-// This last bit of code converts plaintext passwords in the database to encrypted
-function encrypt_passwords()
-{
-    global $mysql;
-    $statement = "select * from team where team_password is not NULL and char_length(team_password) < 32";
-    $result = mysqli_query($mysql, $statement);
-    echo mysqli_error($mysql);
-    while ($row = mysqli_fetch_array($result)) {
-        $statement = "update team set team_password = '".md5($row['team_password'])."' where team_id = '".$row['team_id']."'";
-        mysqli_query($mysql, $statement);
-    }
-}

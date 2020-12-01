@@ -40,6 +40,8 @@ class player
     {
         global $login;
         global $mysql;
+        $extra = '';
+        $selection = null;
 
         $tables[] = "player";
         $wheres[] = "player.player_id = '".$this->player_id."'";
@@ -327,7 +329,7 @@ where ".implode(" and ", $wheres);
     public function draw_combine(&$row)
     {
         $dobmessage = $this->get_affinity($row['player_dob']);
-        $html .= '<script>
+        $html = '<script>
 function affinityMessage()
 {
 alert("'.$dobmessage.'");
@@ -402,7 +404,7 @@ alert("'.$dobmessage.'");
                 $html .= '
       <tr>
         <td align="right">'.$title.':</td>
-        <td><span style="'.$row[$key.'_style'].'">'.$row[$key].'</td>
+        <td><span style="'.($row[$key.'_style'] ?? '').'">'.$row[$key].'</td>
       </tr>';
             }
         }
@@ -570,7 +572,7 @@ alert("'.$dobmessage.'");
     {
         foreach ($array as $title => $id) {
             if ($row[$id]) {
-                $html .= '
+                $html = '
   <tr>
     <td align="right">'.$title.':</td>
     <td>
@@ -586,9 +588,11 @@ alert("'.$dobmessage.'");
 
     public function draw_attributes($position_id)
     {
+        global $mysql;
         $position_id = mysqli_real_escape_string($mysql, $position_id);
         global $login;
         global $mysql;
+        $html = '';
         // See if we have imported our own data
         $statement = "select * from team_player_to_attribute where team_id = '".$login->team_id()."' limit 1";
         if (mysqli_num_rows(mysqli_query($mysql, $statement))) {
@@ -702,7 +706,7 @@ order by position_to_attribute_order";
         global $mysql;
 
         // If we are a selection, show the previous pick
-        $html .= '
+        $html = '
 <div style="padding: 5px">';
         $link = [];
         if ($selection) {
@@ -778,7 +782,7 @@ order by selection_priority desc limit 1";
         global $login;
         global $mysql;
         // If we are a selection, show the next pick
-        $html .= '
+        $html = '
 <div style="padding: 5px">';
         $link = [];
         if ($selection) {

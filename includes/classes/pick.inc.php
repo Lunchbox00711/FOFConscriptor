@@ -45,7 +45,7 @@ class pick
         }
         $round = floor(($this->data['pick_id'] - 1) / 32) + 1;
         $pick = (($this->data['pick_id'] - 1) % 32) + 1;
-        $html .= '
+        $html = '
 <h3>Edit Pick</h3>
 <p>In the event of a trade, use this page to change the team that is making this pick.</p>
 <h2>Round '.$round.' Pick '.$pick.'</h2>

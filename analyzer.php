@@ -21,6 +21,7 @@ include "includes/classes.inc.php";
 
 global $settings;
 $staff = false;
+$line = [];
 if ($settings->get_value(kSettingStaffDraftOn) == 1) {
     $staff = true;
 }
@@ -41,7 +42,6 @@ if (!$staff) {
    pick.team_id = team.team_id and staff.staff_id = pick.player_id and staff.staff_role_id=staff_roles.staff_role_id order by pick_id";
     $result = mysqli_query($mysql, $statement);
     echo mysqli_error($mysql);
-    $line = [];
     while ($row = mysqli_fetch_array($result)) {
         list($first, $last) = explode(" ", $row['staff_name']);
         $line[] = $row['pick_id'].'. - '.$last.', '.$first.', '.$row['staff_role_name'];

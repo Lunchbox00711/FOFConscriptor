@@ -25,11 +25,12 @@ class position
     public function option_list($staff = false)
     {
         global $mysql;
+        $html = '';
         if (!$staff) {
             $statement = "select * from position order by position_id";
             $result = mysqli_query($mysql, $statement);
             while ($row = mysqli_fetch_array($result)) {
-                if ($row['position_id'] == $_GET['position_id']) {
+                if ($row['position_id'] ?? null == $_GET['position_id'] ?? null) {
                     $selected = " selected";
                 } else {
                     $selected = '';
