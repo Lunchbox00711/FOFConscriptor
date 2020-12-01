@@ -87,10 +87,10 @@ order by position_to_attribute_order";
         $attributes = [];
         while ($row = mysqli_fetch_array($result2)) {
             //if we don't have this attribute exported (currently only Formations?) we need to add it anyway!
-    if ($row["fof7_rookie_attribute_column"] == -1) {//check if this is the formations field
+    if ($row["fof7_rookie_attribute_column"] ?? null == -1) {//check if this is the formations field
              $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '0', '0');";
     } else {
-        $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '".trim($columns[$row["fof7_attribute_column"]])."', '".trim($columns[$row["fof7_attribute_column"] + 58])."');";
+        $statement = "insert into team_player_to_attribute (team_id, player_id, attribute_id, player_to_attribute_low, player_to_attribute_high) values('".$login->team_id()."', ".$result["player_id"].", ".$row["attribute_id"].", '".trim($columns[$row["fof7_attribute_column"]] ?? null)."', '".trim($columns[$row["fof7_attribute_column"] + 58] ?? null)."');";
     }
             mysqli_query($mysql, $statement);
         }

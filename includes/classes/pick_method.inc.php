@@ -34,6 +34,7 @@ class pick_method
     public function option_list()
     {
         global $mysql;
+        $html = '';
         $statement = "select * from pick_method order by pick_method_id";
         $result = mysqli_query($mysql, $statement);
         while ($row = mysqli_fetch_array($result)) {

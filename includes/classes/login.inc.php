@@ -37,12 +37,12 @@ class login
         global $mysql;
         $statement = "select * from team where team_id = '".mysqli_real_escape_string($mysql, $_SESSION['team_id'] ?? '')."'";
         $this->data = mysqli_fetch_array(mysqli_query($mysql, $statement));
-        if (!$this->data['team_id'] && defined('kRedirect')) {
-            $_SESSION['message'] = "That login is not valid.";
-            unset($_SESSION['team_id']);
-            header("Location: selections.php");
-            exit;
-        }
+        // if (!$this->data['team_id'] && defined('kRedirect')) {
+        //     $_SESSION['message'] = "That login is not valid.";
+        //     unset($_SESSION['team_id']);
+        //     header("Location: selections.php");
+        //     exit;
+        // }
         // Update the chat time stamp for this user
         $statement = "update team set team_chat_time = '".date("Y-m-d H:i:s")."' where team_id = '".$this->team_id()."'";
         mysqli_query($mysql, $statement);
@@ -115,7 +115,7 @@ class login
             header("Location: selections.php");
             exit;
         }
-        $html .= '
+        $html = '
 <h3>GM Options</h3>';
         $html .= '
 <p>Set the options for your account.  Enter your e-mail address if you would like to have each pick
@@ -185,9 +185,9 @@ position when selecting a player" option.';
                 $html .= ' disabled';
             }
             $html .= '>
-          <option value="'.kOptionNoEmail.'"'.$no_email.'>No E-mail</option>
-          <option value="'.kOptionAllEmail.'"'.$all_email.'>All Picks</option>
-          <option value="'.kOptionMyEmail.'"'.$me_email.'>When I\'m on the clock</option>';
+          <option value="'.kOptionNoEmail.'"'.($no_email ?? '').'>No E-mail</option>
+          <option value="'.kOptionAllEmail.'"'.($all_email ?? '').'>All Picks</option>
+          <option value="'.kOptionMyEmail.'"'.($me_email ?? '').'>When I\'m on the clock</option>';
 //          <option value="'.kOptionMyEmail1Away.'"'.$me_email1.'>When I\'m on the clock & 1 pick away</option>
 //          <option value="'.kOptionMyEmail2Away.'"'.$me_email2.'>When I\'m on the clock & 2 picks away</option>
 //          <option value="'.kOptionMyEmail3Away.'"'.$me_email3.'>When I\'m on the clock & 3 picks away</option>
@@ -227,12 +227,12 @@ position when selecting a player" option.';
                 $uscellular = ' selected';
             }
             $html .= '
-	  <option value="@txt.att.net"'.$att.'>AT&T Wireless</option>
-	  <option value="@page.nextel.com"'.$nextel.'>Nextel (Sprint)</option>
-	  <option value="@messaging.sprintpcs.com"'.$sprint.'>Sprint (PCS)</option>
-	  <option value="@tmomail.net"'.$tmobile.'>TMobile</option>
-	  <option value="@email.uscc.net"'.$uscellular.'>US Cellular</option>
-	  <option value="@vtext.com"'.$verizon.'>Verizon Wireless</option>
+	  <option value="@txt.att.net"'.($att ?? '').'>AT&T Wireless</option>
+	  <option value="@page.nextel.com"'.($nextel ?? '').'>Nextel (Sprint)</option>
+	  <option value="@messaging.sprintpcs.com"'.($sprint ?? '').'>Sprint (PCS)</option>
+	  <option value="@tmomail.net"'.($tmobile ?? '').'>TMobile</option>
+	  <option value="@email.uscc.net"'.($uscellular ?? '').'>US Cellular</option>
+	  <option value="@vtext.com"'.($verizon ?? '').'>Verizon Wireless</option>
 	</select></td>
     </tr>';
             if (!$this->is_site_admin()) {
@@ -257,9 +257,9 @@ position when selecting a player" option.';
                 $html .= ' disabled';
             }
             $html .= '>
-          <option value="'.kOptionNoSMS.'"'.$no_sms.'>No SMS</option>
-          <option value="'.kOptionAllSMS.'"'.$all_sms.'>All Picks</option>
-          <option value="'.kOptionMySMS.'"'.$me_sms.'>When I\'m on the clock</option>
+          <option value="'.kOptionNoSMS.'"'.($no_sms ?? '').'>No SMS</option>
+          <option value="'.kOptionAllSMS.'"'.($all_sms ?? '').'>All Picks</option>
+          <option value="'.kOptionMySMS.'"'.($me_sms ?? '').'>When I\'m on the clock</option>
         </select>
       </td>
     </tr>';
@@ -1011,7 +1011,7 @@ team_id = '".$this->data['team_id']."' and column_id = '".mysqli_real_escape_str
         if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $staff = true;
         }
-        $html .= '
+        $html = '
 <div class="option_box_holder">
   Available Columns:
   <div class="option_box" id="unselected">';
@@ -1055,6 +1055,7 @@ order by `column`.column_order";
 
     public function draw_selected_columns($staff)
     {
+        global $mysql;
         $statement = "select * from `column`
 left join team_to_column on team_to_column.team_id = '".$this->data['team_id']."'
 and team_to_column.column_id = `column`.column_id

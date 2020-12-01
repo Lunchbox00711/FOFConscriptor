@@ -27,11 +27,11 @@ if (!$_POST['team_password']) {
     header("Location: register.php");
     exit;
 }
-$col[] = "team_password = '".passsword_hash($_POST['team_password'])."'";
+$col[] = "team_password = '".password_hash($_POST['team_password'], PASSWORD_BCRYPT)."'";
 if (preg_match("/[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,4}/", $_POST['team_email'])) {
     $col[] = "team_email = '".$_POST['team_email']."'";
 }
-if ($_POST['team_owner']) {
+if (!empty($_POST['team_owner'])) {
     $col[] = "team_owner = '".$_POST['team_owner']."'";
 }
 if (strlen($_POST['team_phone']) == 10 && preg_match("/[2-9]{1}\d{8}/", $_POST['team_phone'])) {
@@ -48,7 +48,10 @@ mysqli_query($mysql, $statement);
 echo mysqli_error($mysql);
 if (mysqli_affected_rows($mysql) > 0) {
     $_SESSION['message'] = "Account created successfully.";
-    $_SESSION['team_id'] = mysqli_insert_id($mysql);
+    $statement = "select team_id from team where team_name = '".$_POST['team_name']."'";
+    $result = mysqli_query($mysql, $statement);
+    $row = mysqli_fetch_row($result);
+    $_SESSION['team_id'] = $row[0];
     header("Location: options.php");
 } else {
     $_SESSION['message'] = "Account creation failed.  Either the team name does not exist or it is already registered.";

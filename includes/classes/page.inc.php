@@ -168,6 +168,7 @@ class page
         global $settings;
         global $login;
         global $mysql;
+        $style = '';
         $html = '<i>'.date("g:i a T").'</i> - ';
         if ($settings->get_value(kSettingChatType) == kChatTypePHP) {
             // First see if theres a chat update from the last we checked
@@ -264,7 +265,7 @@ limit 1";
             }
             // If we are the team that is on the clock, send the bell sound if we haven't already
             if ($row['team_id'] == $login->team_id() &&
-      $_SESSION['dinged_pick'][$row['pick_id']] < 3) {
+      $_SESSION['dinged_pick'][$row['pick_id']] ?? 0 < 3) {
                 $this->extra_data = kBellSound;
                 $_SESSION['dinged_pick'][$row['pick_id']] = $_SESSION['dinged_pick'][$row['pick_id']] + 1;
             }
@@ -1128,7 +1129,7 @@ where ".implode(" and ", $wheres);
             header("Location: ./");
             exit;
         }
-        $html .= '
+        $html = '
 <h3>Selection Priority</h3>';
         if (!$login->auto_pick()) {
             $html .= '
@@ -1239,6 +1240,7 @@ will be made using their BPA queue.
     {
         global $login;
         global $settings;
+        $html = '';
         if (!$login->team_id()) {
             header("Location: ./");
             exit;
@@ -1317,6 +1319,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
         global  $login;
         global $settings;
         $joins = [];
+        $html = '';
         $list = new table_list(false);
         $list->set_show_totals(false);
         $tables[] = "selection";

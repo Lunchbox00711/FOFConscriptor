@@ -223,12 +223,14 @@ class table_list
                 $this->order_by = $this->default_sort;
             }
         }
-        $statement .= " order by ".$this->order_by;
-        if (is_array($this->add_order_by)) {
-            if ($this->order_by) {
-                $statement .= ',';
+        if ($this->order_by != -1) {
+            $statement .= " order by ".$this->order_by;
+            if (is_array($this->add_order_by)) {
+                if ($this->order_by) {
+                    $statement .= ',';
+                }
+                $statement .= implode(",", $this->add_order_by);
             }
-            $statement .= implode(",", $this->add_order_by);
         }
         $result = mysqli_query($mysql, $statement);
         if (mysqli_error($mysql)) {
