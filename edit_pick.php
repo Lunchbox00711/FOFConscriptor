@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("edit_pick");
 echo $page->draw();
-?>

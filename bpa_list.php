@@ -29,22 +29,21 @@ $html .= '
 // Do we have adjusted grade?
 $statement = "select * from player where player_adj_score is not null";
 if (mysql_num_rows(mysql_query($statement))) {
-  $html .= '
+    $html .= '
 <option value="-1">Adjusted Grade</option>';
 }
 echo mysql_error();
 // Do we have ratings?
 $statement = "select * from player where player.player_future is not NULL";
 if (mysql_num_rows(mysql_query($statement))) {
-  $html .= '
+    $html .= '
 <option value="-2">Future Rating</option>
 <option value="-3">Current Rating</option>';
 }
 while ($row = mysql_fetch_array($result)) {
-  $html .= '
+    $html .= '
   <option value="'.$row['attribute_id'].'">'.$row['attribute_name'].'</option>';
- }
+}
 $html .= '
 </select>';
 echo $html;
-?>

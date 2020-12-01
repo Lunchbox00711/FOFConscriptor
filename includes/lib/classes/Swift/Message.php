@@ -30,7 +30,7 @@ class Swift_Message extends Swift_Mime_SimpleMessage
     public function __construct($subject = null, $body = null, $contentType = null, $charset = null)
     {
         call_user_func_array(
-            array($this, 'Swift_Mime_SimpleMessage::__construct'),
+            [$this, 'Swift_Mime_SimpleMessage::__construct'],
             Swift_DependencyContainer::getInstance()
                 ->createDependenciesFor('mime.message')
             );
@@ -74,7 +74,9 @@ class Swift_Message extends Swift_Mime_SimpleMessage
     public function addPart($body, $contentType = null, $charset = null)
     {
         return $this->attach(Swift_MimePart::newInstance(
-            $body, $contentType, $charset
+            $body,
+            $contentType,
+            $charset
             ));
     }
 

@@ -21,10 +21,11 @@ include "includes/classes.inc.php";
 
 global $settings;
 $staff = false;
-if ( $settings->get_value(kSettingStaffDraftOn)==1 )
-   $staff = true;
+if ($settings->get_value(kSettingStaffDraftOn) == 1) {
+    $staff = true;
+}
 
-if ( !$staff ){
+if (!$staff) {
     /*$statement = "select * from pick, player, position where
     pick.player_id = player.player_id and
     position.position_id = player.position_id
@@ -42,28 +43,25 @@ if ( !$staff ){
     $result = mysql_query($statement) or die("Bad query: ".mysql_error());
 
     while ($row = mysql_fetch_array($result)) {
-      $player_name = $row['player_name'];
-      $last = substr($player_name, strpos($player_name, ' '));
-      $first = substr($player_name, 0, strpos($player_name, ' '));
-      $line[] = 'Pick #' . $row['pick_id'] . ' - ' . $row['team_name'] . ' - ' . $last.', '.$first.', '.$row['position_name'].', '.$row['player_school'];
-
+        $player_name = $row['player_name'];
+        $last = substr($player_name, strpos($player_name, ' '));
+        $first = substr($player_name, 0, strpos($player_name, ' '));
+        $line[] = 'Pick #' . $row['pick_id'] . ' - ' . $row['team_name'] . ' - ' . $last.', '.$first.', '.$row['position_name'].', '.$row['player_school'];
     }
-
 } else {
-   $statement = "select * from pick, team, staff, staff_roles where
+    $statement = "select * from pick, team, staff, staff_roles where
    pick.team_id = team.team_id and staff.staff_id = pick.player_id and staff.staff_role_id=staff_roles.staff_role_id order by pick_id";
-   $result = mysql_query($statement);
-   echo mysql_error();
-   $line = array();
-   while ($row = mysql_fetch_array($result)) {
-     list($first, $last) = explode(" ",$row['staff_name']);
-     $line[] = $row['pick_id'].'. - '.$last.', '.$first.', '.$row['staff_role_name'];
-   }
+    $result = mysql_query($statement);
+    echo mysql_error();
+    $line = [];
+    while ($row = mysql_fetch_array($result)) {
+        list($first, $last) = explode(" ", $row['staff_name']);
+        $line[] = $row['pick_id'].'. - '.$last.', '.$first.', '.$row['staff_role_name'];
+    }
 }
 if (count($line)) {
-  echo implode("\n<br>",$line);
-  echo "\n";
+    echo implode("\n<br>", $line);
+    echo "\n";
 } else {
-  echo "No drafted players";
+    echo "No drafted players";
 }
-?>

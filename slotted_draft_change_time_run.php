@@ -21,4 +21,3 @@ include "includes/classes.inc.php";
 $pick = new pick($_POST['pick_id']);
 $pick->process_edit_slotted_draft_change_time();
 process_pick_queue();
-?>

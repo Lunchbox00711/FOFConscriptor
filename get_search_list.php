@@ -24,7 +24,6 @@ where pick.pick_id is NULL and
 player.player_name like '".$_POST['search']."%'";
 $result = mysql_query($statement);
 while ($row = mysql_fetch_array($result)) {
-  $data[] = $row['player_name'];
+    $data[] = $row['player_name'];
 }
 echo json_encode($data);
-?>

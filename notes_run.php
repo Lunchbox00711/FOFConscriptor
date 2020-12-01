@@ -24,4 +24,3 @@ mysql_query($statement);
 $_SESSION['message'] = "Saved";
 header("Location: notes.php");
 exit;
-?>

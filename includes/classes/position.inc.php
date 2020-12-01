@@ -22,7 +22,7 @@ define('kPositionP', 9);
 
 class position
 {
-    public function option_list($staff=false)
+    public function option_list($staff = false)
     {
         if (!$staff) {
             $statement = "select * from position order by position_id";

@@ -5,4 +5,3 @@ $page = new page('');
 echo $page->draft_status();
 echo '<><>';
 echo $page->extra_data;
-?>

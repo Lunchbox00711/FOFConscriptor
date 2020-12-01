@@ -22,10 +22,9 @@ include "includes/classes.inc.php";
 // Makes the selection for the current team
 // Only if admin!
 if ($login->is_admin()) {
-  $player_id = $_POST['selection'];
-  $pick_id = $_POST['pick_id'];
-  make_pick($pick_id, $player_id);
- }
+    $player_id = $_POST['selection'];
+    $pick_id = $_POST['pick_id'];
+    make_pick($pick_id, $player_id);
+}
 
 header("Location: players.php");
-?>

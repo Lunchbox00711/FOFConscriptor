@@ -26,7 +26,6 @@ order by pick_id
 limit 32";
 $result = mysql_query($statement);
 while ($row = mysql_fetch_array($result)) {
-  echo "<P>".calculate_pick($row['pick_id'])." - ".$row['team_name']." - [b]".$row['position_name']." ".$row['player_name'].
+    echo "<P>".calculate_pick($row['pick_id'])." - ".$row['team_name']." - [b]".$row['position_name']." ".$row['player_name'].
     "[/b] - ".$row['mock_draft_commentary']."</p>";
- }
-?>
+}

@@ -45,7 +45,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      *
      * @var array
      */
-    private $_keys = array();
+    private $_keys = [];
 
     /**
      * Will be true if magic_quotes_runtime is turned on.
@@ -253,7 +253,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
     public function clearAll($nsKey)
     {
         if (array_key_exists($nsKey, $this->_keys)) {
-            foreach ($this->_keys[$nsKey] as $itemKey=>$null) {
+            foreach ($this->_keys[$nsKey] as $itemKey => $null) {
                 $this->clearKey($nsKey, $itemKey);
             }
             if (is_dir($this->_path . '/' . $nsKey)) {
@@ -277,7 +277,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
             if (!mkdir($cacheDir)) {
                 throw new Swift_IoException('Failed to create cache directory ' . $cacheDir);
             }
-            $this->_keys[$nsKey] = array();
+            $this->_keys[$nsKey] = [];
         }
     }
 
@@ -321,7 +321,7 @@ class Swift_KeyCache_DiskKeyCache implements Swift_KeyCache
      */
     public function __destruct()
     {
-        foreach ($this->_keys as $nsKey=>$null) {
+        foreach ($this->_keys as $nsKey => $null) {
             $this->clearAll($nsKey);
         }
     }

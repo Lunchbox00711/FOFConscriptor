@@ -28,7 +28,7 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
     private $_index;
 
     /** The Search Tree */
-    private $_tree = array();
+    private $_tree = [];
 
     /**  Gives the size of the largest search */
     private $_treeMaxLen = 0;
@@ -44,34 +44,34 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
     public function __construct($search, $replace)
     {
         $this->_search = $search;
-        $this->_index = array();
-        $this->_tree = array();
-        $this->_replace = array();
-        $this->_repSize = array();
+        $this->_index = [];
+        $this->_tree = [];
+        $this->_replace = [];
+        $this->_repSize = [];
 
         $tree = null;
         $i = null;
         $last_size = $size = 0;
         foreach ($search as $i => $search_element) {
             if ($tree !== null) {
-                $tree[-1] = min (count($replace) - 1, $i - 1);
+                $tree[-1] = min(count($replace) - 1, $i - 1);
                 $tree[-2] = $last_size;
             }
             $tree = &$this->_tree;
-            if (is_array ($search_element)) {
+            if (is_array($search_element)) {
                 foreach ($search_element as $k => $char) {
                     $this->_index[$char] = true;
                     if (!isset($tree[$char])) {
-                        $tree[$char] = array();
+                        $tree[$char] = [];
                     }
                     $tree = &$tree[$char];
                 }
-                $last_size = $k+1;
+                $last_size = $k + 1;
                 $size = max($size, $last_size);
             } else {
                 $last_size = 1;
                 if (!isset($tree[$search_element])) {
-                    $tree[$search_element] = array();
+                    $tree[$search_element] = [];
                 }
                 $tree = &$tree[$search_element];
                 $size = max($last_size, $size);
@@ -79,13 +79,13 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
             }
         }
         if ($i !== null) {
-            $tree[-1] = min (count ($replace) - 1, $i);
+            $tree[-1] = min(count($replace) - 1, $i);
             $tree[-2] = $last_size;
             $this->_treeMaxLen = $size;
         }
         foreach ($replace as $rep) {
             if (!is_array($rep)) {
-                $rep = array ($rep);
+                $rep = [$rep];
             }
             $this->_replace[] = $rep;
         }
@@ -106,7 +106,7 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
     {
         $endOfBuffer = end($buffer);
 
-        return isset ($this->_index[$endOfBuffer]);
+        return isset($this->_index[$endOfBuffer]);
     }
 
     /**
@@ -123,7 +123,7 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
             return $buffer;
         }
 
-        $newBuffer = array();
+        $newBuffer = [];
         $buf_size = count($buffer);
         for ($i = 0; $i < $buf_size; ++$i) {
             $search_pos = $this->_tree;
@@ -131,12 +131,11 @@ class Swift_StreamFilters_ByteArrayReplacementFilter implements Swift_StreamFilt
             // We try to find if the next byte is part of a search pattern
             for ($j = 0; $j <= $this->_treeMaxLen; ++$j) {
                 // We have a new byte for a search pattern
-                if (isset ($buffer [$p = $i + $j]) && isset($search_pos[$buffer[$p]])) {
+                if (isset($buffer [$p = $i + $j]) && isset($search_pos[$buffer[$p]])) {
                     $search_pos = $search_pos[$buffer[$p]];
                     // We have a complete pattern, save, in case we don't find a better match later
                     if (isset($search_pos[- 1]) && $search_pos[-1] < $last_found
-                        && $search_pos[-1] > $_minReplaces)
-                    {
+                        && $search_pos[-1] > $_minReplaces) {
                         $last_found = $search_pos[-1];
                         $last_size = $search_pos[-2];
                     }

@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("draft_options");
 echo $page->draw();
-?>

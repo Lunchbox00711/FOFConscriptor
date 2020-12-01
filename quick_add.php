@@ -19,16 +19,15 @@
 
 include "includes/classes.inc.php";
 if ($_POST['quick_add']) {
-  $statement = "select player.player_id from player
+    $statement = "select player.player_id from player
 left join pick on pick.player_id = player.player_id
 where pick.pick_id is NULL and
 player.player_name like '".mysql_real_escape_string($_POST['quick_add'])."%'";
-  $result = mysql_query($statement);
-  while ($row = mysql_fetch_array($result)) {
-    $statement = "insert into selection set player_id = '".$row['player_id']."', team_id = '".$_SESSION["selected_team_id"]."',
+    $result = mysql_query($statement);
+    while ($row = mysql_fetch_array($result)) {
+        $statement = "insert into selection set player_id = '".$row['player_id']."', team_id = '".$_SESSION["selected_team_id"]."',
 selection_priority = ".time();
-    mysql_query($statement);
-  }
+        mysql_query($statement);
+    }
 }
 header("Location: ".$_SESSION["origURL"]);
-?>

@@ -22,9 +22,8 @@ session_start();
 $_SESSION['fof_draft_login_team_name'] = $_POST['team_name'];
 $_SESSION['fof_draft_login_team_password'] = md5($_POST['team_password']);
 if ($_POST['save_login']) {
-  setcookie("fof_draft_login_team_name", $_POST['team_name'], strtotime("+30 days"));
-  setcookie("fof_draft_login_team_password", md5($_POST['team_password']), strtotime("+30 days"));
+    setcookie("fof_draft_login_team_name", $_POST['team_name'], strtotime("+30 days"));
+    setcookie("fof_draft_login_team_password", md5($_POST['team_password']), strtotime("+30 days"));
 }
 header("Location: ./selections.php");
 exit;
-?>

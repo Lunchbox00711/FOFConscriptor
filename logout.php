@@ -25,4 +25,3 @@ setcookie("fof_draft_login_team_name", "", time() - 3600);
 setcookie("fof_draft_login_team_password", "", time() - 3600);
 header("Location: ./");
 exit;
-?>

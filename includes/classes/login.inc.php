@@ -56,10 +56,10 @@ team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_pass
         // Update the chat time stamp for this user
         $statement = "update team set team_chat_time = '".date("Y-m-d H:i:s")."' where team_id = '".$this->team_id()."'";
         mysql_query($statement);
-        if ($settings->get_value(kSettingChatType)==1) {
+        if ($settings->get_value(kSettingChatType) == 1) {
             $statement = "select * from last_update";
             $array = mysql_fetch_array(mysql_query($statement));
-            $this->data['latest_message']=$array['latest_message'];
+            $this->data['latest_message'] = $array['latest_message'];
             if (!$_SESSION['latest_message']) {
                 $_SESSION['latest_message'] = $array['latest_message'];
             }
@@ -94,11 +94,11 @@ team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_pass
     {
         $statement = "select * from last_update";
         $array = mysql_fetch_array(mysql_query($statement));
-        $this->data['latest_message']=$array['latest_message'];
+        $this->data['latest_message'] = $array['latest_message'];
     }
     public function is_admin()
     {
-        if ($this->data['team_id'] == kAdminUser || $this->data['draft_admin']==1) {
+        if ($this->data['team_id'] == kAdminUser || $this->data['draft_admin'] == 1) {
             return true;
         } else {
             return false;
@@ -131,7 +131,7 @@ team_password = '".mysql_real_escape_string($_SESSION['fof_draft_login_team_pass
 e-mailed to you as the selections are made, leave it blank to not receive an e-mail.  Enter your phone number
 (US, 10 digits no dashes, no leading 1) and select a carrier to have each pick SMS text messaged to your phone.  Note: Standard
 text messaging data rates apply and are up to the user to manage.  We are NOT responsible for overages.<p>';
-        if (!$settings->get_value(kSettingSendMails) || $settings->get_value(kSettingSendMails)==kEmailOffAdminAll) {
+        if (!$settings->get_value(kSettingSendMails) || $settings->get_value(kSettingSendMails) == kEmailOffAdminAll) {
             $html .= ' <b>NOTE:</b> The admin has disabled the e-mail and SMS notification.';
         }
         $html .= '
@@ -190,10 +190,10 @@ position when selecting a player" option.';
       <td align="right" class="light" width="40%">E-mail options:</td>
       <td class="light">
         <select name="team_email_prefs"';
-            if ($settings->get_value(kSettingSendMails)==kEmailOff) {
-                $html.=' disabled';
+            if ($settings->get_value(kSettingSendMails) == kEmailOff) {
+                $html .= ' disabled';
             }
-            $html.='>
+            $html .= '>
           <option value="'.kOptionNoEmail.'"'.$no_email.'>No E-mail</option>
           <option value="'.kOptionAllEmail.'"'.$all_email.'>All Picks</option>
           <option value="'.kOptionMyEmail.'"'.$me_email.'>When I\'m on the clock</option>';
@@ -202,7 +202,7 @@ position when selecting a player" option.';
 //          <option value="'.kOptionMyEmail3Away.'"'.$me_email3.'>When I\'m on the clock & 3 picks away</option>
 //          <option value="'.kOptionMyEmail4Away.'"'.$me_email4.'>When I\'m on the clock & 4 picks away</option>
 //          <option value="'.kOptionMyEmail5Away.'"'.$me_email5.'>When I\'m on the clock & 5 picks away</option>
-            $html.='
+            $html .= '
         </select>
       </td>
     </tr>';
@@ -210,29 +210,29 @@ position when selecting a player" option.';
     <tr>
 	<td class="light" align="right">Phone Number (10 digit, no dashes, no leading 1):</td>
      <td class="light"><input type="text" name="team_phone" value="'.$this->data['team_phone'].'"';
-            if ($settings->get_value(kSettingSendMails)==kEmailOff || $settings->get_value(kSettingSendMails)==kEmailOffAdminAll) {
-                $html.=' disabled';
+            if ($settings->get_value(kSettingSendMails) == kEmailOff || $settings->get_value(kSettingSendMails) == kEmailOffAdminAll) {
+                $html .= ' disabled';
             }
-            $html.='></td>
+            $html .= '></td>
     </tr>
 	<tr>
 	<td class="light" align="right">Phone Carrier:</td>
 	<td class="light"><select name="team_carrier"';
-            if ($settings->get_value(kSettingSendMails)==kEmailOff || $settings->get_value(kSettingSendMails)==kEmailOffAdminAll) {
-                $html.=' disabled';
+            if ($settings->get_value(kSettingSendMails) == kEmailOff || $settings->get_value(kSettingSendMails) == kEmailOffAdminAll) {
+                $html .= ' disabled';
             }
-            $html.='>';
-            if ($this->data['team_carrier']=="@txt.att.net") {
+            $html .= '>';
+            if ($this->data['team_carrier'] == "@txt.att.net") {
                 $att = ' selected';
-            } elseif ($this->data['team_carrier']=="@vtext.com") {
+            } elseif ($this->data['team_carrier'] == "@vtext.com") {
                 $verizon = ' selected';
-            } elseif ($this->data['team_carrier']=="@messaging.sprintpcs.com") {
+            } elseif ($this->data['team_carrier'] == "@messaging.sprintpcs.com") {
                 $sprint = ' selected';
-            } elseif ($this->data['team_carrier']=="@page.nextel.com") {
+            } elseif ($this->data['team_carrier'] == "@page.nextel.com") {
                 $nextel = ' selected';
-            } elseif ($this->data['team_carrier']=="@tmomail.net") {
+            } elseif ($this->data['team_carrier'] == "@tmomail.net") {
                 $tmobile = ' selected';
-            } elseif ($this->data['team_carrier']=="@email.uscc.net") {
+            } elseif ($this->data['team_carrier'] == "@email.uscc.net") {
                 $uscellular = ' selected';
             }
             $html .= '
@@ -257,22 +257,22 @@ position when selecting a player" option.';
     break;
     }
             }
-            $html.='
+            $html .= '
     <tr>
       <td align="right" class="light" width="40%">SMS Text Message Options:</td>
       <td class="light">
         <select name="team_sms_setting"';
-            if ($settings->get_value(kSettingSendMails)==kEmailOff || $settings->get_value(kSettingSendMails)==kEmailOffAdminAll) {
-                $html.=' disabled';
+            if ($settings->get_value(kSettingSendMails) == kEmailOff || $settings->get_value(kSettingSendMails) == kEmailOffAdminAll) {
+                $html .= ' disabled';
             }
-            $html.='>
+            $html .= '>
           <option value="'.kOptionNoSMS.'"'.$no_sms.'>No SMS</option>
           <option value="'.kOptionAllSMS.'"'.$all_sms.'>All Picks</option>
           <option value="'.kOptionMySMS.'"'.$me_sms.'>When I\'m on the clock</option>
         </select>
       </td>
     </tr>';
-            $html .='
+            $html .= '
     <tr>
       <td align="right" class="light">Pick Method:</td>
       <td class="light">
@@ -312,7 +312,7 @@ position when selecting a player" option.';
                 }
                 $html .= '
           <option value="'.$i.'"'.$selected.'>'.$i.'</option>';
-                $i+=5;
+                $i += 5;
             }
             $html .= '
         </select>
@@ -353,7 +353,7 @@ each team has their own ability to set this for themselves)</i></p>';
         <textarea cols="80" rows="3" readonly>';
         $widget_location = "http://".$_SERVER['SERVER_NAME'];
         $path = explode("/", $_SERVER['REQUEST_URI']);
-        $path[count($path)-1] = "widget.php";
+        $path[count($path) - 1] = "widget.php";
         $widget_location .= implode("/", $path);
         $html .= htmlentities('<center><iframe src="'.$widget_location.'" height="310" width="925"></iframe></center>');
         $html .= '</textarea>
@@ -385,11 +385,11 @@ each team has their own ability to set this for themselves)</i></p>';
     <tr>
       <td align="right" class="light" width="40%">Admin E-mail:</td>';
         if ($this->is_site_admin()) {
-            $html.='<td class="light"><input type="text" name="team_email" value="'.$this->data['team_email'].'"></td>';
+            $html .= '<td class="light"><input type="text" name="team_email" value="'.$this->data['team_email'].'"></td>';
         } else {
-            $html.='<td class="light"><input disabled type="text" name="blank_email" value="ADMIN EMAIL"></td>';
+            $html .= '<td class="light"><input disabled type="text" name="blank_email" value="ADMIN EMAIL"></td>';
         }
-        $html.='<td class="light">Enter an e-mail address to send notification from.  You must have an address here.</td></tr>';
+        $html .= '<td class="light">Enter an e-mail address to send notification from.  You must have an address here.</td></tr>';
         if ($this->is_admin()) {
             // First check to see if the draft is stopped
             $statement = "select * from pick where player_id is NULL";
@@ -403,7 +403,7 @@ each team has their own ability to set this for themselves)</i></p>';
                 $time_access_value = "1";
             }
       
-            $html.='
+            $html .= '
     <tr>
       <td align="right" class="light">League Name:</td>
       <td class="light"><input type="text" name="league_name" value="'.$settings->get_value(kSettingLeagueName).'"></td>
@@ -439,8 +439,8 @@ each team has their own ability to set this for themselves)</i></p>';
       Or if you have code to embed your own chat, like www.addonchat.com, select and save the template option and
       paste the chat code in the input box below.</td>
     </tr>';
-            if ($settings->get_value(kSettingChatType)==kChatTypeTemplate) {
-                $html.='
+            if ($settings->get_value(kSettingChatType) == kChatTypeTemplate) {
+                $html .= '
         <tr>
             <td align="right" class="light">Chatroom code to embed:</td>
             <td class="light"><textarea id="chat_template_code" name="chat_template_code" cols="40" rows="4">'.$settings->get_value(kSettingChatTemplateCode).'
@@ -448,15 +448,15 @@ each team has their own ability to set this for themselves)</i></p>';
             <td>The HTML code to embed your own chat room if the user-defined chat system is selected.</td>
        </tr>';
             }
-            $html.='
+            $html .= '
       <td align="right" class="light">Send E-mails and SMS Texts:</td>
       <td class="light">';
-            if ($this->is_site_admin() && $settings->get_value(kSettingEmailType)!=kEmailTypeOff) {
-                $html.='<select name="send_emails">';
+            if ($this->is_site_admin() && $settings->get_value(kSettingEmailType) != kEmailTypeOff) {
+                $html .= '<select name="send_emails">';
             } else {
-                $html.='<select name="send_emails" disabled>';
+                $html .= '<select name="send_emails" disabled>';
             }
-            if ($settings->get_value(kSettingEmailType)==kEmailTypeOff) {
+            if ($settings->get_value(kSettingEmailType) == kEmailTypeOff) {
                 $all = "";
                 $next = "";
                 $off = " selected";
@@ -492,15 +492,15 @@ each team has their own ability to set this for themselves)</i></p>';
       </td>
       <td>Select amount of email the utility will allow to be sent if the email system is enabled below.</td>
     </tr>';
-            $html.='
+            $html .= '
       <td align="right" class="light">Send Admin email:</td>
       <td class="light">';
-            if ($this->is_site_admin() && $settings->get_value(kSettingEmailType)!=kEmailTypeOff) {
-                $html.='<select name="send_admin_emails">';
+            if ($this->is_site_admin() && $settings->get_value(kSettingEmailType) != kEmailTypeOff) {
+                $html .= '<select name="send_admin_emails">';
             } else {
-                $html.='<select name="send_admin_emails" disabled>';
+                $html .= '<select name="send_admin_emails" disabled>';
             }
-            if ($settings->get_value(kSettingEmailType)==kEmailTypeOff) {
+            if ($settings->get_value(kSettingEmailType) == kEmailTypeOff) {
                 $all = "";
                 $rollback = "";
                 $off = " selected";
@@ -554,9 +554,9 @@ each team has their own ability to set this for themselves)</i></p>';
       <td class="light">
         <select name="email_type"';
                 if (!$this->is_site_admin()) {
-                    $html.=' disabled';
+                    $html .= ' disabled';
                 }
-                $html.='>
+                $html .= '>
           <option value="0"'.$sysmailtype.'>mail - easy but unpredictable</option>
           <option value="1"'.$syssendmailtype.'>sendmail - better queuing if it is available</option>
           <option value="2"'.$syssmtptype.'>SMTP Relay - requires email server settings</option>
@@ -567,7 +567,7 @@ each team has their own ability to set this for themselves)</i></p>';
       to send email from an off-site account (SMTP options will appear once you save), only use \'mail\' as a last resort. 
       Click the \'Test Email\' button at the bottom of the page to try your last saved selection out.</td>
     </tr>';
-                if ($this->is_site_admin() && $settings->get_value(kSettingEmailType)==kEmailTypeSMTP) {
+                if ($this->is_site_admin() && $settings->get_value(kSettingEmailType) == kEmailTypeSMTP) {
                     $html .= '
     <tr>
       <td align="right" class="light">SMTP Server:</td>
@@ -604,7 +604,7 @@ each team has their own ability to set this for themselves)</i></p>';
                       $tls = ' selected';
                       break;
                     }
-                    $html.='
+                    $html .= '
         <select name="smtp_encryption_type">
           <option value="0"'.$none.'>None</option>
           <option value="1"'.$ssl.'>SSL</option>
@@ -616,7 +616,7 @@ each team has their own ability to set this for themselves)</i></p>';
                 }
             }
     
-            $html.='
+            $html .= '
     <tr>
       <td align="right" class="light">Maximum delay for autopick:</td>
       <td class="light">
@@ -646,7 +646,7 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
             $statement = "select * from pick where pick_id is not NULL order by pick_id desc limit 1";
             $result = mysql_query($statement);
             $result = mysql_fetch_array($result);
-            $rounds = $result['pick_id']/32;
+            $rounds = $result['pick_id'] / 32;
 
             $draft_type = $settings->get_value(kSettingDraftType);
 
@@ -656,12 +656,12 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
             $html .= "<input type='radio' name='draft_type' value='timed_draft' ". (!$draft_type || $draft_type == 'timed_draft' ? 'checked' : '')."/>Timed draft&nbsp;";
             $html .= "<input type='radio' name='draft_type' value='slotted_draft' ". ($draft_type == 'slotted_draft' ? 'checked' : '')."/>Slotted draft";
             $html .= "</td>";
-            $html.='<td class="light">In a timed draft the Pick time limit is used as the amount of time each team has to make a pick.<br/>';
-            $html.='In a slotted draft each team as a fixed date and time within which to make the pick.<br/>';
-            $html.='(Eg. if the draft starts at 8am and the pick time limit for that round is 1 hour: Team 1 as until 9am to make the pick, team 2 has until 10am, ...)<br/>';
-            $html.='The expiring date for each pick can be edited on the selection screen</td>';
+            $html .= '<td class="light">In a timed draft the Pick time limit is used as the amount of time each team has to make a pick.<br/>';
+            $html .= 'In a slotted draft each team as a fixed date and time within which to make the pick.<br/>';
+            $html .= '(Eg. if the draft starts at 8am and the pick time limit for that round is 1 hour: Team 1 as until 9am to make the pick, team 2 has until 10am, ...)<br/>';
+            $html .= 'The expiring date for each pick can be edited on the selection screen</td>';
             $html .= "</tr>";
-            for ($i=1; $i<$rounds+1; $i++) {
+            for ($i = 1; $i < $rounds + 1; $i++) {
                 $html .= '
     <tr>
       <td align="right" class="light">Round '.$i.' Pick Time Limit (0:00 for no limit):</td>
@@ -670,9 +670,9 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
         <select name="round_'.$i.'_pick_limit_hour"'.$time_access.'>';
                 //Changing to round specific timeout settings here...
                 //$limit = $settings->get_value(kSettingPickTimeLimit);
-                $limit = $settings->get_value(100+$i);
+                $limit = $settings->get_value(100 + $i);
 
-                $hour = floor($limit/60);
+                $hour = floor($limit / 60);
                 $min = $limit % 60;
                 $h = 0;
                 while ($h <= 24) {
@@ -706,16 +706,16 @@ their autopick off.  This can be up to the pick time limit or 30 minutes if no p
                 }
                 $html .= '</td>';
 
-                if ($i==1) {
-                    $html.='<td class="light">The pick time limit will cause the current pick to be skipped or the 
+                if ($i == 1) {
+                    $html .= '<td class="light">The pick time limit will cause the current pick to be skipped or the 
               BPA selected at the end of the time limit, and the clock in the menu will count 
               down rather than up. Set the limit to 0:00 to turn this option off.</td>';
                 }
-                $html.='
+                $html .= '
     </tr>';
             }
             //END OF ROUND LOOP
-            $html .='
+            $html .= '
     <tr>
       <td align="right" class="light">Daily Start Time (0:00 for 24-hour clock):</td>
       <td class="light">
@@ -872,7 +872,7 @@ order by time_zone_id";
                     to disabled to prevent autopicks from firing when the draft clock is not running.</td>
                   </tr>';
             */
-            $html.='
+            $html .= '
       <tr>
       <td align="right" class="light">If a team goes on the clock with less than the time limit for the day:</td>
       <td class="light">
@@ -912,10 +912,10 @@ order by time_zone_id";
       <td align="right" class="light">When a team\'s time expires:</td>
       <td class="light">
         <select name="team_expire"';
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 $html .= ' disabled ';
             }
-            $html .='>';
+            $html .= '>';
             if ($settings->get_value(kSettingExpiredPick) == kExpireMakePick) {
                 $make_pick = " selected";
             } else {
@@ -927,19 +927,19 @@ order by time_zone_id";
             $html .= '
         </select>
       </td>';
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
-                $html.='<td class="light">In a staff draft when a team\'s time expires the utility will try to decline the pick, but
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
+                $html .= '<td class="light">In a staff draft when a team\'s time expires the utility will try to decline the pick, but
               if the team must fill the position it will pick the amenable person with the highest suitability for the
               position.</td>';
             } else {
-                $html.='<td class="light">If the setting for "When a team\'s time expires" is set to "Choose BPA/Scout Pick," 
+                $html .= '<td class="light">If the setting for "When a team\'s time expires" is set to "Choose BPA/Scout Pick," 
       the system will first see if that team has a priority list and just has autopick turned off, and will 
       choose from that list. If there is not a player with that method, if a mock draft has been performed, 
       it will use the team\'s roster data to do a scout pick. If no mock draft has been performed, it will 
       choose the best player available based on the adjusted grade or, if the adjusted grade is not uploaded, 
       the order of players as uploaded, without selecting a position that has already been selected for that team.</td>';
             }
-            $html.='
+            $html .= '
     <tr>
       <td align="right" class="light">Stop draft at:</td>
       <td class="light">
@@ -972,7 +972,7 @@ Stopping and restarting the draft will reset the clock for the current pick.</td
         <textarea cols="80" rows="3" readonly>';
         $widget_location = "http://".$_SERVER['SERVER_NAME'];
         $path = explode("/", $_SERVER['REQUEST_URI']);
-        $path[count($path)-1] = "widget.php";
+        $path[count($path) - 1] = "widget.php";
         $widget_location .= implode("/", $path);
         $html .= htmlentities('<center><iframe src="'.$widget_location.'" height="310" width="925"></iframe></center>');
         $html .= '</textarea>
@@ -982,22 +982,22 @@ Stopping and restarting the draft will reset the clock for the current pick.</td
   </table>
   <p><input type="submit" value="SAVE DRAFT OPTIONS">
 </form>';
-        if ($settings->get_value(kSettingEmailType)==kEmailTypeOff) {
+        if ($settings->get_value(kSettingEmailType) == kEmailTypeOff) {
             return $html;
         }
-        $html.='
+        $html .= '
 <form method="post" action="email_test.php">
   <table class="data">
     <tr>
     <td align="right" class="light">Send email to the admin to confirm email settings</td>';
-        if ($settings->get_value(kSettingEmailType)==kEmailTypeMail) {
-            $email='PHP mail() command';
-        } elseif ($settings->get_value(kSettingEmailType)==kEmailTypeSendmail) {
-            $email='sendmail() command';
-        } elseif ($settings->get_value(kSettingEmailType)==kEmailTypeSMTP) {
-            $email='SMTP settings';
+        if ($settings->get_value(kSettingEmailType) == kEmailTypeMail) {
+            $email = 'PHP mail() command';
+        } elseif ($settings->get_value(kSettingEmailType) == kEmailTypeSendmail) {
+            $email = 'sendmail() command';
+        } elseif ($settings->get_value(kSettingEmailType) == kEmailTypeSMTP) {
+            $email = 'SMTP settings';
         }
-        $html.='
+        $html .= '
       <td class="light">
         <input type="submit" value="Test Email with '.$email.'">
       </td>
@@ -1034,7 +1034,7 @@ team_id = '".$this->data['team_id']."' and column_id = '".mysql_real_escape_stri
     {
         global $settings;
         $staff = false;
-        if ($settings->get_value(kSettingStaffDraftOn)==1) {
+        if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $staff = true;
         }
         $html .= '
@@ -1071,7 +1071,7 @@ where team_to_column.column_id is NULL and column_order>280
 order by `column`.column_order";
         }
         $result = mysql_query($statement);
-        $col = array();
+        $col = [];
         while ($row = mysql_fetch_array($result)) {
             $col[] = '<a href="javascript:select_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }
@@ -1093,7 +1093,7 @@ where team_to_column.column_id is not NULL and column_order>280
 order by `column`.column_order";
         }
         $result = mysql_query($statement);
-        $col = array();
+        $col = [];
         while ($row = mysql_fetch_array($result)) {
             $col[] = '<a href="javascript:deselect_column(\''.$row['column_id'].'\')">'.$row['column_header'].'</a>';
         }

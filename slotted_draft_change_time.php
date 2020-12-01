@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("slotted_draft_change_time");
 echo $page->draw();
-?>

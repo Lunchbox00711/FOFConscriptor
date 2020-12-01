@@ -41,7 +41,7 @@ class page
         $message = '';
 
         $function = "draw_".$this->page;
-        if ($settings && ($settings->get_value(kSettingChatType)==0 || $settings->get_value(kSettingChatType)==3) && strcmp($this->page, "chat")==0) {
+        if ($settings && ($settings->get_value(kSettingChatType) == 0 || $settings->get_value(kSettingChatType) == 3) && strcmp($this->page, "chat") == 0) {
             return $this->$function();
         }
         if (!empty($_SESSION['message'])) {
@@ -80,7 +80,7 @@ class page
         $html = str_replace("%year%", kYear, $html);
         $end = microtime(true);
         if (defined("kDebug")) {
-            $html .= '<div class="smalltext">'.number_format(($end-$start), 2).' Seconds</div>';
+            $html .= '<div class="smalltext">'.number_format(($end - $start), 2).' Seconds</div>';
         }
         return $html;
     }
@@ -165,7 +165,7 @@ class page
         global $settings;
         global $login;
         $html .= '<i>'.date("g:i a T").'</i> - ';
-        if ($settings->get_value(kSettingChatType)==kChatTypePHP) {
+        if ($settings->get_value(kSettingChatType) == kChatTypePHP) {
             // First see if theres a chat update from the last we checked
             if (!$_SESSION['latest_message']) {
                 $_SESSION['latest_message'] = $login->latest_message();
@@ -225,8 +225,8 @@ class page
             }
         }
         $limit = $settings->get_value(kSettingPickTimeLimit);
-        $col = array();
-        $tables = array();
+        $col = [];
+        $tables = [];
         $tables[] = "pick";
         $col[] = "pick.pick_id";
         $tables[] = "team";
@@ -245,7 +245,7 @@ order by pick_id
 limit 1";
         $row = mysql_fetch_array(mysql_query($statement));
         if ($row['pick_id']) {
-            $pick = $row['pick_id']%32;
+            $pick = $row['pick_id'] % 32;
             if ($pick == 0) {
                 $pick = 32;
             }
@@ -264,31 +264,31 @@ limit 1";
                 $this->extra_data = kBellSound;
                 $_SESSION['dinged_pick'][$row['pick_id']] = $_SESSION['dinged_pick'][$row['pick_id']] + 1;
             }
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
-                if (ceil(($row['pick_id'])/32)==1) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
+                if (ceil(($row['pick_id']) / 32) == 1) {
                     $html .= '
 On the clock: '.$row['team_name'].' (HeadCoach Round, pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
-                } elseif (ceil(($row['pick_id'])/32)==2) {
+                } elseif (ceil(($row['pick_id']) / 32) == 2) {
                     $html .= '
 On the clock: '.$row['team_name'].' (Off.Coord Round, pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
-                } elseif (ceil(($row['pick_id'])/32)==3) {
+                } elseif (ceil(($row['pick_id']) / 32) == 3) {
                     $html .= '
 On the clock: '.$row['team_name'].' (Deff.Coord Round, pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
-                } elseif (ceil(($row['pick_id'])/32)==4) {
+                } elseif (ceil(($row['pick_id']) / 32) == 4) {
                     $html .= '
 On the clock: '.$row['team_name'].' (Ast.Coach Round, pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
-                } elseif (ceil(($row['pick_id'])/32)==5) {
+                } elseif (ceil(($row['pick_id']) / 32) == 5) {
                     $html .= '
 On the clock: '.$row['team_name'].' (Str.Coach Round, pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
                 }
             } else {
                 $html .= '
-On the clock: '.$row['team_name'].' (round '.ceil(($row['pick_id'])/32).', pick '.$pick.',
+On the clock: '.$row['team_name'].' (round '.ceil(($row['pick_id']) / 32).', pick '.$pick.',
 <span style="'.$style.'">'.$hour.':'.$min.'</span>)';
             }
             $this->on_clock = $row['team_name'];
@@ -315,7 +315,7 @@ Draft is complete';
     {
         global $login;
         global $settings;
-        $menu = array();
+        $menu = [];
         if (!$login->team_id()) {
             // Guest
             $menu['Log In'] = 'login_page.php';
@@ -325,7 +325,7 @@ Draft is complete';
             //only the site admin can start/stop the draft and setup the mock
             if ($login->is_site_admin()) {
                 $menu['Import Draft'] = 'import_draft.php';
-                if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+                if ($settings->get_value(kSettingStaffDraftOn) != 1) {
                     $menu['Mock Setup'] = 'import_mock_draft.php';
                     $menu['Scout Weights'] = 'scout_weights.php';
                 }
@@ -336,7 +336,7 @@ Draft is complete';
                 $menu['Rollback'] = 'rollback.php';
                 $menu['Draft Options'] = 'draft_options.php';
             }
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 $menu['Staff'] = 'staff.php';
             } else {
                 $menu['Players'] = 'players.php';
@@ -350,7 +350,7 @@ Draft is complete';
                 $menu['GM Options'] = 'options.php';
             }
             $menu['Selections'] = 'selections.php';
-            if ($settings->get_value(kSettingChatType)!=kChatTypeOff) {
+            if ($settings->get_value(kSettingChatType) != kChatTypeOff) {
                 $menu['Chat'] = 'chat.php';
             }
             $statement = "select * from mock_draft";
@@ -362,16 +362,16 @@ Draft is complete';
         }
         $html .= '
   <ul>';
-        foreach ($menu as $title=>$link) {
+        foreach ($menu as $title => $link) {
             if (preg_match("/\/".$link."$/", $_SERVER['SCRIPT_NAME'])) {
                 $class = ' class="nav_active"';
             } else {
                 $class = "";
             }
-            if ($settings->get_value(kSettingChatType)==kChatTypeFlash && strcmp($link, 'chat.php')==0) {
+            if ($settings->get_value(kSettingChatType) == kChatTypeFlash && strcmp($link, 'chat.php') == 0) {
                 $html .= '
     <li><a href="javascript:chatpopup(\'chat.php\', \'chat\', 610, 550)" '.$class.'><span'.$class.'>'.$title.'</span></a></li>';
-            } elseif ($settings->get_value(kSettingChatType)==kChatTypeTemplate && strcmp($link, 'chat.php')==0) {
+            } elseif ($settings->get_value(kSettingChatType) == kChatTypeTemplate && strcmp($link, 'chat.php') == 0) {
                 $html .= '
     <li><a href="javascript:chatpopup(\'chat.php\', \'chat\', 610, 550)" '.$class.'><span'.$class.'>'.$title.'</span></a></li>';
             } else {
@@ -406,7 +406,7 @@ Draft is complete';
         global $settings;
         global $login;
     
-        if ($settings->get_value(kSettingChatType)==kChatTypeFlash) {
+        if ($settings->get_value(kSettingChatType) == kChatTypeFlash) {
             $content .= file_get_contents("includes/html/chat.html");
             $content = str_replace("%league%", $settings->get_value(kSettingLeagueName), $content);
             $html = '%content%';
@@ -414,7 +414,7 @@ Draft is complete';
             $html = str_replace("%version%", kVersion, $html);
             $html = str_replace("%content%", $content, $html);
             return $content;
-        } elseif ($settings->get_value(kSettingChatType)==kChatTypeTemplate) {
+        } elseif ($settings->get_value(kSettingChatType) == kChatTypeTemplate) {
             $content .= file_get_contents("includes/html/chat_template.html");
             $content = str_replace("%chat_template%", $settings->get_value(kSettingChatTemplateCode), $content);
             $html = '%content%';
@@ -422,7 +422,7 @@ Draft is complete';
             $html = str_replace("%version%", kVersion, $html);
             $html = str_replace("%content%", $content, $html);
             return $content;
-        } elseif ($settings->get_value(kSettingChatType)==kChatTypePHP) {
+        } elseif ($settings->get_value(kSettingChatType) == kChatTypePHP) {
             if (!$login->team_id()) {
                 header("Location: ./");
                 exit;
@@ -505,7 +505,7 @@ position_to_attribute.position_id = '".$_GET['position_id']."'
 order by position_to_attribute_order";
             $result = mysql_query($statement);
             echo mysql_error();
-            $i=0;
+            $i = 0;
             while ($row = mysql_fetch_array($result)) {
                 $alias = "pa_$i";
                 if ($uploaded) {
@@ -537,7 +537,7 @@ order by position_to_attribute_order";
             $col[] = "player.player_id make_pick";
             $list->set_header("make_pick", "Make Pick");
             $list->set_data_format("make_pick", '<a href="make_pick.php?player_id=%data%">Make Pick<a>');
-        } elseif ($login->is_admin() && $login->team_id()!= $this->on_clock_team_id) {
+        } elseif ($login->is_admin() && $login->team_id() != $this->on_clock_team_id) {
             $col[] = "player.player_id make_pick";
             $list->set_header("make_pick", "Pick for ".$this->on_clock);
             $list->set_data_format("make_pick", '<a href="make_pick.php?player_id=%data%">Pick for '.$this->on_clock.'<a>');
@@ -563,9 +563,9 @@ player_comments.team_id = '".$login->team_id()."'";
         if ($_GET['position_id']) {
             $wheres[] = "player.position_id = '".$_GET['position_id']."'";
         }
-        $list->append_query(array("position_id"=>$_GET['position_id'],
-                  "show_attributes"=>$_GET['show_attributes'],
-                  "filter_overrated"=>$_GET['filter_overrated']));
+        $list->append_query(["position_id" => $_GET['position_id'],
+                  "show_attributes" => $_GET['show_attributes'],
+                  "filter_overrated" => $_GET['filter_overrated']]);
 
         // Do not show selected players
         $joins[] = "left join pick on pick.player_id = player.player_id";
@@ -700,7 +700,7 @@ concat('<a href=\"show_staff.php?staff_id=', staff.staff_in_game_id, '\">', staf
             $col[] = "staff.staff_id make_pick";
             $list->set_header("make_pick", "Make Pick");
             $list->set_data_format("make_pick", '<a href="make_pick.php?staff_id=%data%">Make Pick<a>');
-        } elseif ($login->is_admin() && $login->team_id()!= $this->on_clock_team_id) {
+        } elseif ($login->is_admin() && $login->team_id() != $this->on_clock_team_id) {
             $col[] = "staff.staff_id make_pick";
             $list->set_header("make_pick", "Pick for ".$this->on_clock);
             $list->set_data_format("make_pick", '<a href="make_pick.php?staff_id=%data%">Pick for '.$this->on_clock.'<a>');
@@ -726,7 +726,7 @@ player_comments.team_id = '".$login->team_id()."'";
         if ($_GET['position_id']) {
             $wheres[] = "staff.staff_role_id = '".$_GET['position_id']."'";
         }
-        $list->append_query(array("position_id"=>$_GET['position_id'],"filter_amenable"=>$_GET['filter_amenable'],"filter_suitable"=>$_GET['filter_suitable']));
+        $list->append_query(["position_id" => $_GET['position_id'],"filter_amenable" => $_GET['filter_amenable'],"filter_suitable" => $_GET['filter_suitable']]);
 
         // Do not show selected players
         $joins[] = "left join pick on pick.player_id = staff.staff_id";
@@ -801,7 +801,7 @@ To choose specific staff, change your preferences in the "Options" tab.';
             $statement = "select pick_id,team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
             $row = mysql_fetch_array(mysql_query($statement));
             $pick_id = $row["pick_id"];
-            $round = floor(($pick_id-1)/32)+1;
+            $round = floor(($pick_id - 1) / 32) + 1;
             if ($round == 1) {
                 $wheres[] = "(staff.staff_suitable_hc>0)";
             }
@@ -861,12 +861,12 @@ from team where team.team_chat_time > '".date("Y-m-d H:i:s", strtotime("-10 seco
 order by team_name";
         $result = mysql_query($statement);
         echo mysql_error();
-        $users = array();
+        $users = [];
         while ($row = mysql_fetch_array($result)) {
             $users[] = $row['team_owner'];
         }
     
-        if ($settings->get_value(kSettingStaffDraftOn)==1) {
+        if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $html .= '
 <h3>STAFF Draft Selections</h3>
 <p>Round1:HeadCoach, Round2:Off.Coord., Round3:Deff.Coord., Round4:Asst.Coach, Round5:StrCoach</p>
@@ -892,7 +892,7 @@ If you skip a pick you will have the ability to "unskip" it as well.</p>';
         $wheres[] = "team.team_id = pick.team_id";
         if ($_GET['team_id']) {
             $wheres[] = "team.team_id = '".$_GET['team_id']."'";
-            $list->append_query(array("team_id"=>$_GET['team_id']));
+            $list->append_query(["team_id" => $_GET['team_id']]);
         }
         $joins[] = "left join selection on selection.team_id = team.team_id and selection.selection_priority != 0";
         $joins[] = "left join bpa on bpa.team_id = team.team_id";
@@ -924,7 +924,7 @@ pick.player_id = '".kDraftHalt."'),
 concat('<a href=\"edit_pick.php?pick_id=', pick.pick_id, '\">&raquo; change team</a>'), NULL) chng";
             $list->set_header("chng", "Change Team", false, false, false);
         }
-        if ($settings->get_value(kSettingStaffDraftOn)==1) {
+        if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             if ($login->is_admin()) {
                 $col[] = "if (pick.player_id is NULL and pick.pick_time is not NULL,
 concat('<a href=\"decline_pick.php?pick_id=', pick.pick_id, '\">&raquo; Decline Pick</a>'), NULL) pass";
@@ -1033,7 +1033,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $wheres[] = "team.team_id = mock_draft.team_id";
         if ($_GET['team_id']) {
             $wheres[] = "team.team_id = '".$_GET['team_id']."'";
-            $list->append_query(array("team_id"=>$_GET['team_id']));
+            $list->append_query(["team_id" => $_GET['team_id']]);
         }
         $col[] = "team.team_name";
         $list->set_header("team_name", "Team");
@@ -1175,10 +1175,10 @@ will be made using your BPA queue.
             $html .= $this->draw_player_queue($_GET['team_id']);
         } elseif ($team->pick_method() == kBPAQueue) {
             $html .= $this->draw_BPAQueue($_GET['team_id']);
-        } elseif ($team->pick_method()==kScoutPick) {
-            $html.= '
+        } elseif ($team->pick_method() == kScoutPick) {
+            $html .= '
             <p>This team is set to Scout pick so neither their player or BPA queue will be used.</p>';
-        } elseif ($team->pick_method()==kPlayerThenBPA) {
+        } elseif ($team->pick_method() == kPlayerThenBPA) {
             $html .= '
 <p>This team is set to use their player queue then BPA queue.  If their player queue is empty, then the selection
 will be made using their BPA queue.
@@ -1227,7 +1227,7 @@ will be made using their BPA queue.
         if (!$team_id) {
             $_SESSION["selected_team_id"] = $login->team_id();
             $_SESSION["origURL"] = "team_queue.php";
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 $html .= '
 <p>In a staff draft the utility will select the staff member at the top of your queue provided they are suitable 
 and amenable to working for you.  Note that the current amenable value represents their feelings regarding the team 
@@ -1249,7 +1249,7 @@ players at once.</p>
             $_SESSION["selected_team_id"] = $team_id;
             $_SESSION["origURL"] = "team_queue.php?team_id=".$_SESSION["selected_team_id"];
         }
-        if ($settings->get_value(kSettingStaffDraftOn)==1) {
+        if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $html .= '<h3>Priority Queues (<span id="active_count"></span>):</h3>';
             $html .= $this->draw_staff_priority_list($team_id);
         } else {
@@ -1281,11 +1281,11 @@ players at once.</p>
         $staff_statement = "select * from staff";
         $result = mysql_query($staff_statement);
         echo mysql_error();
-        $html .="<SELECT id=\"a\" size=\"10\" multiple>";
+        $html .= "<SELECT id=\"a\" size=\"10\" multiple>";
         while ($row = mysql_fetch_array($result)) {
-            $html .="<OPTION value=\"a\">".$row['staff_name']."</OPTION>";
+            $html .= "<OPTION value=\"a\">".$row['staff_name']."</OPTION>";
         }
-        $html.="</SELECT>
+        $html .= "</SELECT>
 <br/><br/>
 Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
 <a href=\"#\" onclick=\"listbox_move('a', 'down')\">down</a>
@@ -1296,7 +1296,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
     {
         global  $login;
         global $settings;
-        $joins = array();
+        $joins = [];
         $list = new table_list(false);
         $list->set_show_totals(false);
         $tables[] = "selection";
@@ -1308,7 +1308,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
         } else {
             $wheres[] = "selection.team_id = '".$login->team_id()."'";
         }
-        if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+        if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $tables[] = "player";
             $wheres[] = "player.player_id = selection.player_id";
             $col[] = "
@@ -1348,7 +1348,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
         if (!$team_id) {
             // If we have autopick off and it's our turn, have a "choose player" button
             if (!$login->auto_pick() && ($login->team_id() == $this->on_clock_team_id || $login->skipped())) {
-                if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+                if ($settings->get_value(kSettingStaffDraftOn) != 1) {
                     $col[] = "player.player_id make_pick";
                 } else {
                     $col[] = "staff.staff_id make_pick";
@@ -1358,7 +1358,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
             }
 
             // Comments
-            if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+            if ($settings->get_value(kSettingStaffDraftOn) != 1) {
                 $joins[] = "left join player_comments on player_comments.player_id = player.player_id and
 player_comments.team_id = '".$login->team_id()."'";
             } else {
@@ -1378,7 +1378,7 @@ player_comments.team_id = '".$login->team_id()."'";
 </div>
 <div id="player_comments_progress_%id%" style="display: none; text-align: center;"><img src="images/pinwheel.gif"></div>');
         }
-        if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+        if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $col[] = "player.player_id upqueue";
         } else {
             $col[] = "staff.staff_id upqueue";
@@ -1386,7 +1386,7 @@ player_comments.team_id = '".$login->team_id()."'";
         $list->set_header("upqueue", "Move Up", false, false, false);
         $list->set_data_format("upqueue", '<a href="javascript:move_player_up_queue(\'%data%\')" id="upqueue_%data%"><img src="images/arrow_up.gif" border="0"></a><a href="javascript:move_player_top_queue(\'%data%\')" id="upqueue_%data%"><img src="images/arrow_top.gif" border="0"></a>');
 
-        if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+        if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $col[] = "player.player_id inactivate";
         } else {
             $col[] = "staff.staff_id inactivate";
@@ -1394,7 +1394,7 @@ player_comments.team_id = '".$login->team_id()."'";
         $list->set_header("inactivate", "Activate / Inactivate", false, false, false);
         $list->set_data_format("inactivate", '<a href="javascript:move_player_to_inactive_queue(\'%data%\')" id="inactivate_%data%"><img src="images/hold_icon.png" border="0"></a>');
 
-        if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+        if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $col[] = "player.player_id del";
         } else {
             $col[] = "staff.staff_id del";
@@ -1402,7 +1402,7 @@ player_comments.team_id = '".$login->team_id()."'";
         $list->set_header("del", "Delete", false, false, false);
         $list->set_data_format("del", '<a href="javascript:delete_player_from_queue(\'%data%\')" id="delete_%data%"><img src="images/icons/user-trash.png" border="0"></a>');
 
-        if ($settings->get_value(kSettingStaffDraftOn)!=1) {
+        if ($settings->get_value(kSettingStaffDraftOn) != 1) {
             $joins[] = "left join team_player on team_player.player_id = player.player_id and
 team_player.team_id = '".$login->team_id()."'";
         } else {
@@ -1425,7 +1425,7 @@ where ".implode(" and ", $wheres);
         }
         if (!$team_id) {
             global $settings;
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
                 $html .= '
 <p>In a staff draft BPA is simple.  Since the round specifies the position then enabling BPA will cause the utility 
 to select the most suitable amenable staff member at the position in question.  There are no settings needed here.</p>';
@@ -1450,7 +1450,7 @@ will not have any effect.</p>';
             $wheres[] = "bpa.team_id = '".$login->team_id()."'";
             $_SESSION["selected_team_id"] = $login->team_id();
         }
-        if (strcmp($_SERVER["PHP_SELF"], "team_queue.php")!=1) {
+        if (strcmp($_SERVER["PHP_SELF"], "team_queue.php") != 1) {
             $_SESSION["origURL"] = "team_queue.php?team_id=".$_SESSION["selected_team_id"];
         } else {
             $_SESSION["origURL"] = $_SERVER["PHP_SELF"];
@@ -1512,7 +1512,7 @@ where ".implode(" and ", $wheres);
         <select name="bpa_max_experience">
           <option value="">No Limit</option>';
         $i = 1;
-        while ($i<=24) {
+        while ($i <= 24) {
             $html .= '
           <option value="'.$i.'">'.$i.'</option>';
             $i++;
@@ -1539,7 +1539,7 @@ where ".implode(" and ", $wheres);
         $pick_id = $_GET['pick_id'];
         //ok so the admin or the owner wants to decline their staff selection.
         //first make sure they have someone in this position
-        $round = floor(($pick_id-1)/32)+1;
+        $round = floor(($pick_id - 1) / 32) + 1;
         $statement = "select team_id from `pick` where `player_id` is NULL order by pick_id asc limit 1";
         $row = mysql_fetch_array(mysql_query($statement));
         if ($tid = $row["team_id"]) {
@@ -1549,7 +1549,7 @@ where ".implode(" and ", $wheres);
             $tid = $row["in_game_id"];
             $statement = "select * from staff where fired=0 and drafted=0 and staff_curr_team_id = ".$tid." and staff_role_id=".$round;
             $result = mysql_fetch_array(mysql_query($statement));
-            if ($result["staff_name"]!='') {
+            if ($result["staff_name"] != '') {
                 //they DO have a staff member in this position and can decline it.
                 $statement = "update pick set player_id = '".kDeclinePick."' where pick_id = '".$_GET['pick_id']."'
 and player_id is NULL";
@@ -1743,7 +1743,7 @@ draft again).</p>';
         $tables[] = "team";
         $wheres[] = "team.team_id = pick.team_id";
         $col[] = "team.team_name";
-        if ($settings->get_value(kSettingStaffDraftOn)==1) {
+        if ($settings->get_value(kSettingStaffDraftOn) == 1) {
             $wheres[] = "pick.player_id is not NULL and pick.player_id!=-100";
         } else {
             $tables[] = "player";
@@ -1758,8 +1758,8 @@ draft again).</p>';
 order by pick_id desc';
         $result = mysql_query($statement);
         while ($row = mysql_fetch_array($result)) {
-            if ($settings->get_value(kSettingStaffDraftOn)==1) {
-                if ($row['pick.player_id']==kDeclinePick) {
+            if ($settings->get_value(kSettingStaffDraftOn) == 1) {
+                if ($row['pick.player_id'] == kDeclinePick) {
                     $html .= '
           <option value="'.$row['pick_id'].'">'.calculate_pick($row['pick_id']).' - '.$row['team_name'].' - Declined</option>';
                 } else {
@@ -1913,10 +1913,10 @@ affect future scout picks.</p>
         if ($_POST['query']) {
             $statement = $_POST['query'];
             $result = mysql_query($statement);
-            $data = array();
+            $data = [];
             while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
-                $header = array();
-                foreach ($row as $key=>$value) {
+                $header = [];
+                foreach ($row as $key => $value) {
                     $header[] = $key;
                 }
                 $data[] = "<td>".implode("</td><td>", $row)."</td>";
@@ -1933,7 +1933,7 @@ affect future scout picks.</p>
   </tr>
 </table>';
         } else {
-            $tables = array("pick", "settings", "team");
+            $tables = ["pick", "settings", "team"];
             foreach ($tables as $table) {
                 if ($table == 'settings') {
                     $statement = "select * from $table order by setting_id";
@@ -1941,7 +1941,7 @@ affect future scout picks.</p>
                     $statement = "select * from $table order by ".$table."_id";
                 }
                 $result = mysql_query($statement);
-                $data = array();
+                $data = [];
                 while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
                     $data[] = "<td>".implode("</td><td>", $row)."</td>";
                 }

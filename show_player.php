@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("show_player");
 echo $page->draw();
-?>

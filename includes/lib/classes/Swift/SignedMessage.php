@@ -21,17 +21,17 @@ class Swift_SignedMessage extends Swift_Message
     /**
      * @var Swift_Signers_HeaderSigner[]
      */
-    private $headerSigners = array();
+    private $headerSigners = [];
 
     /**
      * @var Swift_Signers_BodySigner[]
      */
-    private $bodySigners = array();
+    private $bodySigners = [];
 
     /**
      * @var array
      */
-    private $savedMessage = array();
+    private $savedMessage = [];
 
     /**
      * Create a new Message.
@@ -58,8 +58,7 @@ class Swift_SignedMessage extends Swift_Message
     {
         if ($signer instanceof Swift_Signers_HeaderSigner) {
             $this->headerSigners[] = $signer;
-        }
-        elseif ($signer instanceof Swift_Signers_BodySigner) {
+        } elseif ($signer instanceof Swift_Signers_BodySigner) {
             $this->bodySigners[] = $signer;
         }
 
@@ -121,7 +120,7 @@ class Swift_SignedMessage extends Swift_Message
 
     protected function saveMessage()
     {
-        $this->savedMessage = array('headers'=> array());
+        $this->savedMessage = ['headers' => []];
         $this->savedMessage['body'] = $this->getBody();
         $this->savedMessage['children'] = $this->getChildren();
     }
@@ -156,6 +155,6 @@ class Swift_SignedMessage extends Swift_Message
         $this->setChildren($this->savedMessage['children']);
 
         $this->restoreHeaders();
-        $this->savedMessage = array();
+        $this->savedMessage = [];
     }
 }

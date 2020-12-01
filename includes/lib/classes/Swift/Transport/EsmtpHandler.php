@@ -61,7 +61,7 @@ interface Swift_Transport_EsmtpHandler
      * @param string[]                  $failedRecipients to collect failures
      * @param boolean                   $stop             to be set true  by-reference if the command is now sent
      */
-    public function onCommand(Swift_Transport_SmtpAgent $agent, $command, $codes = array(), &$failedRecipients = null, &$stop = false);
+    public function onCommand(Swift_Transport_SmtpAgent $agent, $command, $codes = [], &$failedRecipients = null, &$stop = false);
 
     /**
      * Returns +1, -1 or 0 according to the rules for usort().

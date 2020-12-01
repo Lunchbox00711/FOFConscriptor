@@ -21,13 +21,12 @@ include "includes/classes.inc.php";
 
 // Process the scout weight adjustment
 if ($login->is_admin()) {
-  if (is_array($_POST['position_scout_weight'])) {
-    foreach($_POST['position_scout_weight'] as $key=>$value) {
-      $statement = "update position set position_scout_weight = '$value' where position_id = '$key'";
-      mysql_query($statement);
+    if (is_array($_POST['position_scout_weight'])) {
+        foreach ($_POST['position_scout_weight'] as $key => $value) {
+            $statement = "update position set position_scout_weight = '$value' where position_id = '$key'";
+            mysql_query($statement);
+        }
     }
-  }
-  $_SESSION['message'] = "Scout weights updated.";
+    $_SESSION['message'] = "Scout weights updated.";
 }
 header("Location: scout_weights.php");
-?>

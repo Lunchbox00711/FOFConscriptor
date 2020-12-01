@@ -24,9 +24,9 @@ session_start();
 
 // Don't do this if the config file already exists!
 if (file_exists("includes/config.inc.php") || !is_writable("includes")) {
-  header("Location: ./");
-  exit;
- }
+    header("Location: ./");
+    exit;
+}
 
 // This function attempts to install the database using the parameters passed in the POST command.
 $league_page = $_POST['league_page'];
@@ -34,35 +34,35 @@ $user = $_POST['user'];
 $password = $_POST['password'];
 $database = $_POST['database'];
 $host = $_POST['host'];
-if (!mysql_connect ($host, $user, $password)) {
-  $_SESSION['error'] = 'I cannot connect to the database server because: ' . mysql_error();
-  header("Location: ./");
-  exit;
- }
-if (!mysql_select_db ($database)) {
-  $_SESSION['error'] = 'I cannot connect to the database because: ' . mysql_error();
-  header("Location: ./");
-  exit;
- }
+if (!mysql_connect($host, $user, $password)) {
+    $_SESSION['error'] = 'I cannot connect to the database server because: ' . mysql_error();
+    header("Location: ./");
+    exit;
+}
+if (!mysql_select_db($database)) {
+    $_SESSION['error'] = 'I cannot connect to the database because: ' . mysql_error();
+    header("Location: ./");
+    exit;
+}
 
 // Make sure we have admin info
 if (!$_POST['admin_user'] || !$_POST['admin_password'] || !$_POST['admin_email']) {
-  $_SESSION['error'] = "You must enter information for the admin account.";
-  header("Location: ./");
-  exit;
- }
+    $_SESSION['error'] = "You must enter information for the admin account.";
+    header("Location: ./");
+    exit;
+}
 
 // Got here, so let's run the sql script
 $queries = explode(";\n", file_get_contents("includes/mysql/install.sql"));
-foreach($queries as $query) {
-  if ($query) {
-    mysql_query($query);
-    if (mysql_error()) {
-      echo "<P>".$query;
-      echo "<P>".mysql_error();
-      exit;
+foreach ($queries as $query) {
+    if ($query) {
+        mysql_query($query);
+        if (mysql_error()) {
+            echo "<P>".$query;
+            echo "<P>".mysql_error();
+            exit;
+        }
     }
-  }
 }
 
 // Then store the admin password
@@ -72,13 +72,13 @@ values
 mysql_query($statement);
 $admin_user_id = mysql_insert_id();
 // Populate the default colmuns, 1-12
-$i=1;
-while ($i<=12) {
-  $statement = "insert into team_to_column (team_id, column_id, team_to_column_order)
+$i = 1;
+while ($i <= 12) {
+    $statement = "insert into team_to_column (team_id, column_id, team_to_column_order)
 values ('$admin_user_id', '$i', '$i')";
-  mysql_query($statement);
-  $i++;
- }
+    mysql_query($statement);
+    $i++;
+}
 
 
 // Now create the config.inc.php file
@@ -100,4 +100,3 @@ $_SESSION['fof_draft_login_team_name'] = $_POST['admin_user'];
 $_SESSION['fof_draft_login_team_password'] = md5($_POST['admin_password']);
 header("Location: ./import_draft.php");
 exit;
-?>

@@ -26,4 +26,3 @@ $html = str_replace("%league%", $settings->get_value(kSettingLeagueName), $html)
 $widget = new widget();
 $html = str_replace("%content%", $widget->draw(), $html);
 echo $html;
-?>

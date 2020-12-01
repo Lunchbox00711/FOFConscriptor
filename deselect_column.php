@@ -19,4 +19,3 @@
 
 include "includes/classes.inc.php";
 echo $login->deselect_column();
-?>

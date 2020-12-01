@@ -21,9 +21,8 @@ include "includes/classes.inc.php";
 $player_id = $_GET['player_id'];
 $statement = "select * from pick where player_id = '$player_id'";
 if (!mysql_num_rows(mysql_query($statement))) {
-  $statement = "insert into selection (player_id, team_id, selection_priority)
+    $statement = "insert into selection (player_id, team_id, selection_priority)
 values ('$player_id', '".$login->team_id()."', '".time()."')";
-  mysql_query($statement);
- }
+    mysql_query($statement);
+}
 header("Location: ".$_SERVER['HTTP_REFERER']);
-?>

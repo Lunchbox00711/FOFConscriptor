@@ -94,7 +94,7 @@ class settings
     {
         //ok, not so simple.  intercept the all designating kSettingPickTimeLimit checks,
         //and replace it with the timelimit for the round we are currently in!
-        if ($id==kSettingPickTimeLimit) {
+        if ($id == kSettingPickTimeLimit) {
             $statement = "select pick.pick_id, team.team_id, team_email, team_name, team_email_prefs
 from pick, team
 where pick.team_id = team.team_id
@@ -102,8 +102,8 @@ and pick.player_id is NULL
 order by pick_id
 limit 1";
             $row = mysql_fetch_array(mysql_query($statement));
-            $currentround = ($row['pick_id']-1)/32+1;
-            return $this->setting[100+$currentround];
+            $currentround = ($row['pick_id'] - 1) / 32 + 1;
+            return $this->setting[100 + $currentround];
         } else {
             return $this->setting[$id];
         }
