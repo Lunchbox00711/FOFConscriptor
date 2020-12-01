@@ -20,7 +20,7 @@
 session_name('FOFCONSCRIPTOR');
 session_start();
 
-define('kVersion', '2.9');
+define('kVersion', '3.0');
 define('kYear', '2020');
 
 // Classes
