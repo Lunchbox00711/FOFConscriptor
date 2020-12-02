@@ -1004,7 +1004,7 @@ skip";
             exit;
         }
         while ($row = mysqli_fetch_assoc($result)) {
-            if ($row['team_id'] ?? '' == $_GET['team_id']) {
+            if ($row['team_id'] == ($_GET['team_id'] ?? null)) {
                 $selected = " selected";
             } else {
                 $selected = '';
