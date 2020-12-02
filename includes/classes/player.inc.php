@@ -570,9 +570,10 @@ alert("'.$dobmessage.'");
   
     public function draw_single_val_boxes($array, $row)
     {
+        $html = '';
         foreach ($array as $title => $id) {
             if ($row[$id]) {
-                $html = '
+                $html .= '
   <tr>
     <td align="right">'.$title.':</td>
     <td>
@@ -659,7 +660,7 @@ order by position_to_attribute_order";
             $attributes[$i] = $row['attribute_name'];
             $i++;
         }
-        $statement = "select ".implode(",", $col)." from ".implode(",", $tables)." where ".implode(" and ", $wheres);
+        $statement = "select ".implode(",", $col ?? ['*'])." from ".implode(",", $tables ?? ['player'])." where ".implode(" and ", $wheres ?? ['1']);
         $result = mysqli_query($mysql, $statement);
         while ($row = mysqli_fetch_assoc($result)) {
             foreach ($attributes as $alias => $name) {

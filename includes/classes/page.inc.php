@@ -1075,7 +1075,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $col[] = "actual_team.team_name actualteam";
         $joins[] = "left join player selected_player on selected_player.player_id = pick.player_id";
         $joins[] = "left join position selected_position on selected_position.position_id = selected_player.position_id";
-        $col[] = "concat('<a href=\"show_player.php?player_id=', selected_player.player_id, '\">', selected_player.player_name, '</a>') selected_player_name";
+        $col[] = "concat('<a href=\"show_player.php?in_game_id=', selected_player.player_in_game_id, '\">', selected_player.player_name, '</a>') selected_player_name";
         $list->set_header("selected_player_name", "Actual Selection");
         $col[] = "selected_position.position_name selected_position";
         $list->set_header("selected_position", "Pos");
@@ -1096,7 +1096,7 @@ where ".implode(" and ", $wheres)." group by pick_id";
         $result = mysqli_query($mysql, $statement);
         echo mysqli_error($mysql);
         while ($row = mysqli_fetch_assoc($result)) {
-            if ($row['team_id'] ?? null == $_GET['team_id'] ?? null) {
+            if ($row['team_id'] == ($_GET['team_id'] ?? null)) {
                 $selected = " selected";
             } else {
                 $selected = '';
@@ -1814,7 +1814,7 @@ order by pick_id desc';
 
     public function draw_show_player()
     {
-        if ($_GET['in_game_id']) {
+        if (!empty($_GET['in_game_id'])) {
             $player = new player($_GET['in_game_id']);
             return $player->draw(true);
         } else {
