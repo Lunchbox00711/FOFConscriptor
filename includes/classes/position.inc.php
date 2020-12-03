@@ -30,7 +30,7 @@ class position
             $statement = "select * from position order by position_id";
             $result = mysqli_query($mysql, $statement);
             while ($row = mysqli_fetch_assoc($result)) {
-                if ($row['position_id'] ?? null == $_GET['position_id'] ?? null) {
+                if ($row['position_id'] == ($_GET['position_id'] ?? null)) {
                     $selected = " selected";
                 } else {
                     $selected = '';
@@ -42,7 +42,7 @@ class position
             $statement = "select * from staff_roles order by staff_role_id";
             $result = mysqli_query($mysql, $statement);
             while ($row = mysqli_fetch_assoc($result)) {
-                if ($row['staff_role_id'] == $_GET['position_id']) {
+                if ($row['staff_role_id'] == ($_GET['position_id'] ?? null)) {
                     $selected = " selected";
                 } else {
                     $selected = '';
