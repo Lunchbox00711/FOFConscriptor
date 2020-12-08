@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                show_player.php
  *                            -------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("show_player");
 echo $page->draw();
-?>

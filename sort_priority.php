@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                sort_priority.php
  *                            -------------------
@@ -23,14 +23,13 @@ include "includes/classes.inc.php";
 $statement = "select * from selection where team_id = '".$login->team_id()."' and
 selection_priority != '0'
 order by selection_priority";
-$result = mysql_query($statement);
+$result = mysqli_query($mysql, $statement);
 $current = 10;
-while ($row = mysql_fetch_array($result)) {
-  $statement = "update selection set selection_priority = '$current' where
+while ($row = mysqli_fetch_assoc($result)) {
+    $statement = "update selection set selection_priority = '$current' where
 team_id = '".$row['team_id']."' and player_id = '".$row['player_id']."'";
-  mysql_query($statement);
-  $current += 10;
- }
+    mysqli_query($mysql, $statement);
+    $current += 10;
+}
 
 header("Location: priority.php");
-?>

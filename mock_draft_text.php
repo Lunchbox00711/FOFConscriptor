@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                mock_draft_text.php
  *                            --------------------------
@@ -24,9 +24,8 @@ player.player_id = mock_draft.player_id and
 position.position_id = player.position_id
 order by pick_id
 limit 32";
-$result = mysql_query($statement);
-while ($row = mysql_fetch_array($result)) {
-  echo "<P>".calculate_pick($row['pick_id'])." - ".$row['team_name']." - [b]".$row['position_name']." ".$row['player_name'].
+$result = mysqli_query($mysql, $statement);
+while ($row = mysqli_fetch_assoc($result)) {
+    echo "<P>".calculate_pick($row['pick_id'])." - ".$row['team_name']." - [b]".$row['position_name']." ".$row['player_name'].
     "[/b] - ".$row['mock_draft_commentary']."</p>";
- }
-?>
+}

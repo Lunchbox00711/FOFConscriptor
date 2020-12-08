@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                clear_inactives.php
  *                            ----------------------------
@@ -20,6 +20,5 @@
 include "includes/classes.inc.php";
 $statement = "delete from selection where team_id = '".$login->team_id()."'
 and selection_priority = '0'";
-mysql_query($statement);
+mysqli_query($mysql, $statement);
 header("Location: ".$_SERVER['HTTP_REFERER']);
-?>

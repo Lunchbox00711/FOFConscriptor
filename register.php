@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                register.php
  *                            -------------------
@@ -17,8 +17,7 @@
  *
  ***************************************************************************/
 
-define (kRedirect, false);
+define('kRedirect', false);
 include "includes/classes.inc.php";
 $page = new page("register");
 echo $page->draw();
-?>

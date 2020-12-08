@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                link_teams.php
  *                            ---------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("link_teams");
 echo $page->draw();
-?>

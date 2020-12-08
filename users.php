@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                users.php
  *                            -------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("users");
 echo $page->draw();
-?>

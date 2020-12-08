@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                notes.php
  *                            -------------------
@@ -20,8 +20,7 @@
 include "includes/classes.inc.php";
 $statement = "update team set team_comments = '".addslashes($_POST['team_comments'])."' where
 team_id = '".$login->team_id()."'";
-mysql_query($statement);
+mysqli_query($mysql, $statement);
 $_SESSION['message'] = "Saved";
 header("Location: notes.php");
 exit;
-?>

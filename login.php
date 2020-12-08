@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                login.php
  *                            -------------------
@@ -19,12 +19,13 @@
 
 session_name('FOFCONSCRIPTOR');
 session_start();
-$_SESSION['fof_draft_login_team_name'] = $_POST['team_name'];
-$_SESSION['fof_draft_login_team_password'] = md5($_POST['team_password']);
-if ($_POST['save_login']) {
-  setcookie("fof_draft_login_team_name", $_POST['team_name'], strtotime("+30 days"));
-  setcookie("fof_draft_login_team_password", md5($_POST['team_password']), strtotime("+30 days"));
+require_once('includes/config.inc.php');
+$statement = "select team_id, team_password from team where team_name = '".mysqli_real_escape_string($mysql, $_POST['team_name'])."'";
+$result = mysqli_fetch_row(mysqli_query($mysql, $statement));
+if ($result) {
+    if (password_verify($_POST['team_password'], $result[1])) {
+        $_SESSION['team_id'] = $result[0];
+    }
 }
 header("Location: ./selections.php");
 exit;
-?>

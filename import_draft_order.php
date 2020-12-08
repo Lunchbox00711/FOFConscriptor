@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                imort_draft.php
  *                            -------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("import_draft_order");
 echo $page->draw();
-?>

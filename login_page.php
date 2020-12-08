@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                login_page.php
  *                            ---------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("login");
 echo $page->draw();
-?>

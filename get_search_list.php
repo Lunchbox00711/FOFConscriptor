@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                selections.php
  *                            -------------------
@@ -22,9 +22,8 @@ $statement = "select player.player_name from player
 left join pick on pick.player_id = player.player_id
 where pick.pick_id is NULL and
 player.player_name like '".$_POST['search']."%'";
-$result = mysql_query($statement);
-while ($row = mysql_fetch_array($result)) {
-  $data[] = $row['player_name'];
+$result = mysqli_query($mysql, $statement);
+while ($row = mysqli_fetch_assoc($result)) {
+    $data[] = $row['player_name'];
 }
 echo json_encode($data);
-?>

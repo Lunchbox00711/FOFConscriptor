@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                edit_pick_run.php
  *                            -------------------
@@ -21,4 +21,3 @@ include "includes/classes.inc.php";
 $pick = new pick($_POST['pick_id']);
 $pick->process_edit();
 process_pick_queue();
-?>

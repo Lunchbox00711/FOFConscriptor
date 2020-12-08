@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                scout_weights.php
  *                            ------------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("scout_weights");
 echo $page->draw();
-?>

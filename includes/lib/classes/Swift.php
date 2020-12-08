@@ -18,7 +18,7 @@
 abstract class Swift
 {
     public static $initialized = false;
-    public static $inits = array();
+    public static $inits = [];
 
     /** Swift Mailer Version number generated during dist release process */
     const VERSION = '4.3.0';
@@ -76,6 +76,6 @@ abstract class Swift
         if (null !== $callable) {
             self::$inits[] = $callable;
         }
-        spl_autoload_register(array('Swift', 'autoload'));
+        spl_autoload_register(['Swift', 'autoload']);
     }
 }

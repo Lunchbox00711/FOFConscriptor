@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                imort_mock_draft.php
  *                            ---------------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("import_mock_draft");
 echo $page->draw();
-?>

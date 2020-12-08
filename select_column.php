@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                select_column.php
  *                            -------------------
@@ -19,4 +19,3 @@
 
 include "includes/classes.inc.php";
 echo $login->select_column();
-?>

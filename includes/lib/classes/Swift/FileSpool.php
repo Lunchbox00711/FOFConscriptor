@@ -25,7 +25,7 @@ class Swift_FileSpool extends Swift_ConfigurableSpool
      *
      * @var int
      */
-    private $_retryLimit=10;
+    private $_retryLimit = 10;
 
     /**
      * Create a new FileSpool.
@@ -78,7 +78,7 @@ class Swift_FileSpool extends Swift_ConfigurableSpool
      */
     public function setRetryLimit($limit)
     {
-        $this->_retryLimit=$limit;
+        $this->_retryLimit = $limit;
     }
 
     /**

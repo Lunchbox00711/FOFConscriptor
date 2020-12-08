@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                notes.php
  *                            -------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("notes");
 echo $page->draw();
-?>

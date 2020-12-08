@@ -26,7 +26,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
      * @param Swift_StreamFilter    $filter     if canonicalization should occur
      * @param boolean               $dotEscape  if dot stuffing workaround must be enabled
      */
-    public function __construct(Swift_CharacterStream $charStream, Swift_StreamFilter $filter = null, $dotEscape=false)
+    public function __construct(Swift_CharacterStream $charStream, Swift_StreamFilter $filter = null, $dotEscape = false)
     {
         $this->_dotEscape = $dotEscape;
         parent::__construct($charStream, $filter);
@@ -34,7 +34,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
 
     public function __sleep()
     {
-        return array('_charStream', '_filter', '_dotEscape');
+        return ['_charStream', '_filter', '_dotEscape'];
     }
 
     protected function getSafeMapShareId()
@@ -76,7 +76,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
 
         $currentLine = '';
         $prepend = '';
-        $size=$lineLen=0;
+        $size = $lineLen = 0;
 
         while (false !== $bytes = $this->_nextSequence()) {
             //If we're filtering the input
@@ -97,14 +97,14 @@ class Swift_Mime_ContentEncoder_QpContentEncoder extends Swift_Encoder_QpEncoder
             }
 
             $enc = $this->_encodeByteSequence($bytes, $size);
-            if ($currentLine && $lineLen+$size >= $thisLineLength) {
+            if ($currentLine && $lineLen + $size >= $thisLineLength) {
                 $is->write($prepend . $this->_standardize($currentLine));
                 $currentLine = '';
                 $prepend = "=\r\n";
                 $thisLineLength = $maxLineLength;
-                $lineLen=0;
+                $lineLen = 0;
             }
-            $lineLen+=$size;
+            $lineLen += $size;
             $currentLine .= $enc;
         }
         if (strlen($currentLine)) {

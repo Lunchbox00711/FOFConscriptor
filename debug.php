@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                debug.php
  *                            -------------------
@@ -27,4 +27,3 @@ include "includes/classes.inc.php";
 $page = new page("debug");
 echo $page->draw();
 */
-?>

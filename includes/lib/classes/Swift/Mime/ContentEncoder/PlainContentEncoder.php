@@ -125,22 +125,21 @@ class Swift_Mime_ContentEncoder_PlainContentEncoder implements Swift_Mime_Conten
 
         $originalLines = explode($le, $string);
 
-        $lines = array();
+        $lines = [];
         $lineCount = 0;
 
         foreach ($originalLines as $originalLine) {
             $lines[] = '';
-            $currentLine =& $lines[$lineCount++];
+            $currentLine = & $lines[$lineCount++];
 
             //$chunks = preg_split('/(?<=[\ \t,\.!\?\-&\+\/])/', $originalLine);
             $chunks = preg_split('/(?<=\s)/', $originalLine);
 
             foreach ($chunks as $chunk) {
                 if (0 != strlen($currentLine)
-                    && strlen($currentLine . $chunk) > $length)
-                {
+                    && strlen($currentLine . $chunk) > $length) {
                     $lines[] = '';
-                    $currentLine =& $lines[$lineCount++];
+                    $currentLine = & $lines[$lineCount++];
                 }
                 $currentLine .= $chunk;
             }
@@ -159,8 +158,8 @@ class Swift_Mime_ContentEncoder_PlainContentEncoder implements Swift_Mime_Conten
     private function _canonicalize($string)
     {
         return str_replace(
-            array("\r\n", "\r", "\n"),
-            array("\n", "\n", "\r\n"),
+            ["\r\n", "\r", "\n"],
+            ["\n", "\n", "\r\n"],
             $string
             );
     }

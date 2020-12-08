@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                private_chat.php
  *                            -----------------------
@@ -24,38 +24,37 @@ $html = str_replace("%league%", $settings->get_value(kSettingLeagueName), $html)
 $html = str_replace("%version%", kVersion, $html);
 $html = str_replace("%chat_id%", $chat_id, $html);
 if ($_GET['chat_room_id']) {
-  $value = $login->latest_message()+1;
-  $statement = "update last_update set latest_message='".$value."'";
-  mysql_query($statement);
-  $html = str_replace("%chat_room_id%", $_GET['chat_room_id'], $html);
-  $statement = "update chat_room set team_2_arrived = '1' where team_2_id = '".$login->team_id()."' and
+    $value = $login->latest_message() + 1;
+    $statement = "update last_update set latest_message='".$value."'";
+    mysqli_query($mysql, $statement);
+    $html = str_replace("%chat_room_id%", $_GET['chat_room_id'], $html);
+    $statement = "update chat_room set team_2_arrived = '1' where team_2_id = '".$login->team_id()."' and
 chat_room_id = '".$_GET['chat_room_id']."'";
-  mysql_query($statement);
-  $chat_room_id = $_GET['chat_room_id'];
-  $statement = "select team.* from team, chat_room where team.team_id = chat_room.team_1_id and
+    mysqli_query($mysql, $statement);
+    $chat_room_id = $_GET['chat_room_id'];
+    $statement = "select team.* from team, chat_room where team.team_id = chat_room.team_1_id and
 chat_room_id = '$chat_room_id'";
-  $row = mysql_fetch_array(mysql_query($statement));
-  $html = str_replace("%team_name%", $row['team_name'], $html);
- } else {
-  $value = $login->latest_message()+1;
-  $statement = "update last_update set latest_message='".$value."'";
-  mysql_query($statement);
-  $statement = "select * from chat_room where team_1_id = '".$login->team_id()."' and
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
+    $html = str_replace("%team_name%", $row['team_name'], $html);
+} else {
+    $value = $login->latest_message() + 1;
+    $statement = "update last_update set latest_message='".$value."'";
+    mysqli_query($mysql, $statement);
+    $statement = "select * from chat_room where team_1_id = '".$login->team_id()."' and
 team_2_id = '".$_GET['team_id']."' and
 team_2_arrived is NULL";
-  $row = mysql_fetch_array(mysql_query($statement));
-  if ($row['chat_room_id']) {
-    $chat_room_id = $row['chat_room_id'];
-  } else {
-    $statement = "insert into chat_room (team_1_id, team_2_id, team_1_arrived) values 
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
+    if ($row['chat_room_id']) {
+        $chat_room_id = $row['chat_room_id'];
+    } else {
+        $statement = "insert into chat_room (team_1_id, team_2_id, team_1_arrived) values 
 ('".$login->team_id()."', '".$_GET['team_id']."', '1')";
-    mysql_query($statement);
-    $chat_room_id = mysql_insert_id();
-  }
-  $statement = "select * from team where team_id = '".$_GET['team_id']."'";
-  $row = mysql_fetch_array(mysql_query($statement));
-  $html = str_replace("%team_name%", $row['team_name'], $html);
- }
+        mysqli_query($mysql, $statement);
+        $chat_room_id = mysqli_insert_id($mysql);
+    }
+    $statement = "select * from team where team_id = '".$_GET['team_id']."'";
+    $row = mysqli_fetch_assoc(mysqli_query($mysql, $statement));
+    $html = str_replace("%team_name%", $row['team_name'], $html);
+}
 $html = str_replace("%chat_room_id%", $chat_room_id, $html);
 echo $html;
-?>

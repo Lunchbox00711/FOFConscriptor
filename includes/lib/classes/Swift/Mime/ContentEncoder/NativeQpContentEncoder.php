@@ -26,7 +26,8 @@ class Swift_Mime_ContentEncoder_NativeQpContentEncoder implements Swift_Mime_Con
     {
         if ($charset !== 'utf-8') {
             throw new RuntimeException(
-                sprintf('Charset "%s" not supported. NativeQpContentEncoder only supports "utf-8"', $charset));
+                sprintf('Charset "%s" not supported. NativeQpContentEncoder only supports "utf-8"', $charset)
+            );
         }
     }
 

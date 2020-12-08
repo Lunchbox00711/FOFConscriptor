@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                set_selections.php
  *                            -------------------
@@ -24,26 +24,26 @@ $team_id = $login->team_id();
 $count = time();
 
 // Save the selections
-foreach($_POST['player_id_selection'] as $player_id) {
-  if ($_POST['select'][$player_id]) {
-    $count++;
-    // Check to make sure this player is not picked
-    $statement = "select * from pick where player_id = '$player_id'";
-    if (!mysql_num_rows(mysql_query($statement))) {
-      $statement = "insert into selection set team_id = '$team_id', player_id = '$player_id',
+foreach ($_POST['player_id_selection'] as $player_id) {
+    if ($_POST['select'][$player_id]) {
+        $count++;
+        // Check to make sure this player is not picked
+        $statement = "select * from pick where player_id = '$player_id'";
+        if (!mysqli_num_rows(mysqli_query($mysql, $statement))) {
+            $statement = "insert into selection set team_id = '$team_id', player_id = '$player_id',
 selection_priority = '$count'";
-      mysql_query($statement);
+            mysqli_query($mysql, $statement);
+        }
+    } else {
+        $statement = "delete from selection where team_id = '$team_id' and player_id = '$player_id'";
+        mysqli_query($mysql, $statement);
     }
-  } else {
-    $statement = "delete from selection where team_id = '$team_id' and player_id = '$player_id'";
-    mysql_query($statement);
-  }
 }
 $_SESSION['message'] = "Selections saved.";
-if ( $settings->get_value(kSettingStaffDraftOn)!=1 )
+if ($settings->get_value(kSettingStaffDraftOn) != 1) {
     header("Location: players.php?position_id=".$_POST['position_id']."&show_attributes=".$_POST['show_attributes'].
        "&filter_overrated=".$_POST['filter_overrated']);
-else
+} else {
     header("Location: staff.php?staff_id=".$_POST['position_id']."&show_attributes=".$_POST['show_attributes'].
        "&filter_overrated=".$_POST['filter_overrated']);
-?>
+}

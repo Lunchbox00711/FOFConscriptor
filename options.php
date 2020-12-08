@@ -1,4 +1,4 @@
-<?
+<?php
 /***************************************************************************
  *                                options.php
  *                            -------------------
@@ -20,4 +20,3 @@
 include "includes/classes.inc.php";
 $page = new page("options");
 echo $page->draw();
-?>
