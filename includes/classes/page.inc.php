@@ -265,7 +265,7 @@ limit 1";
             }
             // If we are the team that is on the clock, send the bell sound if we haven't already
             if ($row['team_id'] == $login->team_id() &&
-      $_SESSION['dinged_pick'][$row['pick_id']] ?? 0 < 3) {
+                @$_SESSION['dinged_pick'][$row['pick_id']] ?? 0 < 3) {
                 $this->extra_data = kBellSound;
                 $_SESSION['dinged_pick'][$row['pick_id']] = $_SESSION['dinged_pick'][$row['pick_id']] + 1;
             }
@@ -1366,6 +1366,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
         }
         $login->get_columns($col, $list, false);
         $list->clear_order_by();
+        $list->check_headers_for_sort = false;
         $list->add_order_by('selection_priority');
 
         if (!$team_id) {

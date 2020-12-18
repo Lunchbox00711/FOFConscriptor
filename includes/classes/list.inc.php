@@ -23,16 +23,18 @@ class table_list
     // things like the headers, date format, etc.  Then call the draw_list function with the sql statement
     // to draw the list.  It will keep track of its own page number, sort, etc.
 
-    public $default_sort = null;
-    public $show_map = null;
     public $add_order_by = null;
-    public $form = null;
-    public $extra_text = null;
     public $buttons = null;
-    public $has_map = false;
-    public $link;
     public $cell_style;
+    public $check_headers_for_sort = true;
+    public $default_sort = null;
+    public $extra_text = null;
+    public $form = null;
+    public $has_map = false;
     public $id_col = null;
+    public $link;
+    public $order_by = -1;
+    public $show_map = null;
     public $style;
 
     public function __construct($multipage = true, $interface_append = '')
@@ -143,7 +145,11 @@ class table_list
 
     public function add_order_by($column)
     {
-        $this->add_order_by[] = $column;
+        if ($this->order_by == -1) {
+            $this->order_by = $column;
+        } else {
+            $this->add_order_by[] = $column;
+        }
     }
 
     public function set_form($action, $method, $name = "form")
@@ -218,7 +224,7 @@ class table_list
         // Append the order by
         $columns = count($this->header);
         $width = ceil(100 / $columns);
-        if ($this->order_by != -1) {
+        if ($this->check_headers_for_sort && $this->order_by != -1) {
             if (!array_key_exists(preg_replace("/ desc/", "", $this->order_by), $this->header)) {
                 $this->order_by = $this->default_sort;
             }
@@ -258,7 +264,7 @@ class table_list
         if ($this->multipage) {
             $html .= $this->draw_page_numbers();
         }
-    
+
         if ($this->has_map) {
             $html .= '
 <p align="center" class="no_print"><a href="?'.$queries.'&map=1">&raquo; Show map</a></p>';
@@ -550,7 +556,7 @@ map.addOverlay(createMarker(point, \''.$bubble.'\', greenIcon));';
         // Takes the stored statement and exports a CSV with the headers in the first column
         $this->header = $_SESSION['list_header'];
         $statement = $_SESSION['list_statement'];
-    
+
         // Print the headers
         $data = [];
         $final = '';
