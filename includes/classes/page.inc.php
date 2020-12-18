@@ -1366,6 +1366,7 @@ Move <a href=\"#\" onclick=\"listbox_move('a', 'up')\">up</a>,
         }
         $login->get_columns($col, $list, false);
         $list->clear_order_by();
+        $list->check_headers_for_sort = false;
         $list->add_order_by('selection_priority');
 
         if (!$team_id) {
