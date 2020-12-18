@@ -382,10 +382,10 @@ alert("'.$dobmessage.'");
         $html .= '
     <td>'.$row['player_weight'].' lbs. ('.$comment.')</td>
   </tr>
-  <tr>
+  <!--<tr>
     <td align="right">Experience:</td>
     <td>'.$row['player_experience'].'</td>
-  </tr>';
+  </tr>-->';
         $text_array = ["player_interviewed" => "Interviewed",
             "player_impression" => "Impression",
             "player_solec" => "Solecismic Score",
