@@ -93,10 +93,13 @@ where team_id = '".$this->data['team_id']."'";
 
     public function clear_password()
     {
+        global $mysql;
         if ($this->data['team_password']) {
             $statement = "update team set team_password = NULL, team_email = NULL, team_clock_adj = '0', pick_method_id = '1'
  where team_id = '".$this->data['team_id']."'";
-            mysqli_query($mysql, $statement);
+            if (!mysqli_query($mysql, $statement)) {
+                die(mysqli_error($mysql));
+            }
         }
     }
 
